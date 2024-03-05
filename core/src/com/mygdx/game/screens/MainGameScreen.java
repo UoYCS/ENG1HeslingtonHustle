@@ -29,19 +29,19 @@ public class MainGameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             y += SPEED * Gdx.graphics.getDeltaTime();
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             y -= SPEED * Gdx.graphics.getDeltaTime();
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             x -= SPEED * Gdx.graphics.getDeltaTime();
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             x += SPEED * Gdx.graphics.getDeltaTime();
         }
 
