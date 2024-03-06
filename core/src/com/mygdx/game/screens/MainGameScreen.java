@@ -28,7 +28,7 @@ public class MainGameScreen implements Screen {
     public MainGameScreen (HesHustle game){
         this.game = game;
 
-        this.camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        this.camera = new OrthographicCamera((float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
         this.camera.position.set(GAME_WORLD_WIDTH / 2, GAME_WORLD_HEIGHT / 2, 0);
         this.camera.update();
 
