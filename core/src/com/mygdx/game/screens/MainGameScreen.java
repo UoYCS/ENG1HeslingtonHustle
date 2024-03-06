@@ -9,7 +9,7 @@ import com.mygdx.game.HesHustle;
 
 public class MainGameScreen implements Screen {
 
-    public static final float SPEED = 100;
+    public static float SPEED = 100;
 
     Texture img;
     float x;
@@ -29,21 +29,32 @@ public class MainGameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            y += SPEED * Gdx.graphics.getDeltaTime();
+
+        int up    = Gdx.input.isKeyPressed(Input.Keys.W) ? 1 : 0;
+        int down  = Gdx.input.isKeyPressed(Input.Keys.S) ? 1 : 0;
+        int left  = Gdx.input.isKeyPressed(Input.Keys.A) ? 1 : 0;
+        int right = Gdx.input.isKeyPressed(Input.Keys.D) ? 1 : 0;
+
+        int horizontal = (right - left);
+        int vertical = (up - down);
+
+
+        // Checking if player is moving diagonally and to normalise speed
+        // Otherwise, player would be faster when moving diagonally due to Pythagorean theorem
+        
+        if (horizontal != 0 && vertical != 0) {
+            float length = (float) Math.sqrt(Math.pow(horizontal, 2) + Math.pow(vertical, 2));
+            float horizontal_normalised = horizontal / length;
+            float vertical_normalised = vertical / length;
+
+            y += vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
+            x += horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
+        } else {
+
+            y += (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
+            x += (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            y -= SPEED * Gdx.graphics.getDeltaTime();
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            x -= SPEED * Gdx.graphics.getDeltaTime();
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            x += SPEED * Gdx.graphics.getDeltaTime();
-        }
 
         ScreenUtils.clear(1, 0, 0, 1);
         game.batch.begin();
