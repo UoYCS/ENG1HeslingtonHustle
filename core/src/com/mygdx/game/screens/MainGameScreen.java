@@ -15,11 +15,15 @@ public class MainGameScreen implements Screen {
 
     Texture img;
     Sprite map;
-    float player_x;
-    float player_y;
 
     final float GAME_WORLD_WIDTH = 1024;
     final float GAME_WORLD_HEIGHT = 576;
+
+
+    float player_x = GAME_WORLD_WIDTH / 2;
+    float player_y = GAME_WORLD_HEIGHT / 2;
+
+
 
     OrthographicCamera camera;
 
@@ -73,15 +77,37 @@ public class MainGameScreen implements Screen {
             player_x += (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
         }
 
+        //  Bounds checking to keep the player within map boundaries
+        player_x = Math.max(0,
+                            Math.min(player_x,
+                                     GAME_WORLD_WIDTH - img.getWidth()));
+
+        player_y = Math.max(0,
+                            Math.min(player_y,
+                                     GAME_WORLD_HEIGHT - img.getHeight()));
+
+
+        // Bounds checking to keep camera within map boundaries
+        float camera_x =
+                Math.min(
+                        Math.max(player_x + (float) img.getWidth() / 2, camera.viewportWidth / 2),
+                        GAME_WORLD_WIDTH - camera.viewportWidth / 2);
+
+        float camera_y =
+                Math.min(
+                        Math.max(player_y + (float) img.getWidth() / 2, camera.viewportHeight / 2),
+                        GAME_WORLD_HEIGHT - camera.viewportHeight / 2);
+
+
+
+
 
         ScreenUtils.clear(255, 255, 255, 1);
-        game.camera.update();
 
         game.batch.begin();
-
         map.draw(game.batch);
-        //game.batch.draw(map_tex, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        game.camera.position.set(player_x, player_y, 0);
+
+        game.camera.position.set(camera_x, camera_y, 0);
         game.camera.update();
 
         game.batch.setProjectionMatrix(game.camera.combined);
