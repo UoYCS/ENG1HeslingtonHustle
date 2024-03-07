@@ -23,7 +23,7 @@ public class MainGameScreen implements Screen {
     public static float SPEED = 150;
 
     // Game assets
-    Texture img;    // Player Texture
+    Texture player_texture;    // Player Texture
     Texture act; // Activity marker texture (Temporary)
     Sprite map;     // Map Background Sprite
     Texture mark;
@@ -88,7 +88,7 @@ public class MainGameScreen implements Screen {
         map = new Sprite(new Texture("temp_map.png"));
         map.setPosition(0,0);
         map.setSize(GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT);
-        img = new Texture("player.png");
+        player_texture = new Texture("player.png");
         act = new Texture("red_dot.png");
         mark = new Texture("marker_pixel.png");
     }
@@ -135,22 +135,22 @@ public class MainGameScreen implements Screen {
         //  Bounds checking to keep the player within map boundaries
         player_x = Math.max(0,
                             Math.min(player_x,
-                                     GAME_WORLD_WIDTH - img.getWidth()));
+                                     GAME_WORLD_WIDTH - player_texture.getWidth()));
 
         player_y = Math.max(0,
                             Math.min(player_y,
-                                     GAME_WORLD_HEIGHT - img.getHeight()));
+                                     GAME_WORLD_HEIGHT - player_texture.getHeight()));
 
 
         // Bounds checking to keep camera within map boundaries
         float camera_x =
                 Math.min(
-                        Math.max(player_x + (float) img.getWidth() / 2, camera.viewportWidth / 2),
+                        Math.max(player_x + (float) player_texture.getWidth() / 2, camera.viewportWidth / 2),
                         GAME_WORLD_WIDTH - camera.viewportWidth / 2);
 
         float camera_y =
                 Math.min(
-                        Math.max(player_y + (float) img.getWidth() / 2, camera.viewportHeight / 2),
+                        Math.max(player_y + (float) player_texture.getWidth() / 2, camera.viewportHeight / 2),
                         GAME_WORLD_HEIGHT - camera.viewportHeight / 2);
 
 
@@ -158,7 +158,7 @@ public class MainGameScreen implements Screen {
         // When Interact button is pressed, check if the player is close to an activity, and process logic accordingly.
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             for (Activity activity : activities) {
-                if (activity.isPlayerClose(player_x, player_y)){
+                if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
                     this.energy += activity.getEnergyUsage();
                     System.out.println(energy);
 
@@ -187,7 +187,7 @@ public class MainGameScreen implements Screen {
         game.batch.setProjectionMatrix(game.camera.combined);
 
         // Draw player based on previous logic and user input
-        game.batch.draw(img, player_x, player_y);
+        game.batch.draw(player_texture, player_x, player_y);
         game.batch.draw(mark, player_x, player_y);
 
         // End rendering for frame
@@ -245,7 +245,7 @@ public class MainGameScreen implements Screen {
      */
     @Override
     public void dispose() {
-        img.dispose();
+        player_texture.dispose();
     }
 }
 
