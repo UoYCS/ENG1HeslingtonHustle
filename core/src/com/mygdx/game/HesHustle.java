@@ -3,9 +3,12 @@ package com.mygdx.game;
 
 // Importing required libraries and classes from libgdx
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.screens.MainGameScreen;
+import com.mygdx.game.screens.MainMenuScreen;
+import jdk.tools.jmod.Main;
 
 
 /**
@@ -29,8 +32,10 @@ public class HesHustle extends Game {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		this.setScreen(new MainGameScreen(this));
+		this.setScreen(new MainMenuScreen(this));
+		//this.setScreen(new MainGameScreen(this));
 	}
+
 
 
 	/**
