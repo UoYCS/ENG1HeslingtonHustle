@@ -159,9 +159,16 @@ public class MainGameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             for (Activity activity : activities) {
                 if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
-                    this.energy += activity.getEnergyUsage();
-                    System.out.println(energy);
 
+                    if (this.energy + activity.getEnergyUsage() >= 0) {
+                        this.energy += activity.getEnergyUsage();
+
+                        if (this.energy >= 100){
+                            this.energy = 100;
+                        }
+
+                        System.out.println(this.energy);
+                    }
                 }
             }
         }
