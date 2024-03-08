@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.screens.MainGameScreen;
 import com.mygdx.game.screens.MainMenuScreen;
-import jdk.tools.jmod.Main;
 
 
 /**
