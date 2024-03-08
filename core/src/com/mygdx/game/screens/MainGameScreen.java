@@ -5,9 +5,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
+
 import com.mygdx.game.HesHustle;
 
 import java.util.ArrayList;
@@ -51,7 +57,10 @@ public class MainGameScreen implements Screen {
     // Initialise an ArrayList to store details about the activities players can interact with
     private final List<Activity> activities = new ArrayList<>();
 
-
+    // Implementing a stage for UI elements
+    private Stage stage;
+    private Skin skin;
+    private Label label;
 
     /**
      * Constructor for MainGameScreen Class
@@ -77,6 +86,16 @@ public class MainGameScreen implements Screen {
         //activities.add(new Activity("rec", 600, 400, 20, 20));
         //activities.add(new Activity("eat", 600, 400, 20, 20));
 
+        stage = new Stage();
+        skin = new Skin(Gdx.files.internal("skin/glassy-ui.json"));
+
+        label = new Label("Score: 0", skin);
+        label.setColor(Color.BLACK);
+        label.setPosition(10, Gdx.graphics.getHeight() - 10 - label.getHeight());
+
+        stage.addActor(label);
+
+        Gdx.input.setInputProcessor(stage);
 
     }
 
@@ -200,6 +219,9 @@ public class MainGameScreen implements Screen {
         // Draw player based on previous logic and user input
         game.batch.draw(player_texture, player_x, player_y);
         game.batch.draw(mark, player_x, player_y);
+
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
 
         // End rendering for frame
         game.batch.end();
