@@ -89,7 +89,7 @@ public class MainGameScreen implements Screen {
         stage = new Stage();
         skin = new Skin(Gdx.files.internal("skin/glassy-ui.json"));
 
-        label = new Label("Score: 0", skin);
+        label = new Label("Heslington Hustle - Use WASD or Arrow Keys to Move ", skin);
         label.setColor(Color.BLACK);
         label.setPosition(10, Gdx.graphics.getHeight() - 10 - label.getHeight());
 
