@@ -79,11 +79,12 @@ public class MainGameScreen implements Screen {
     @Override
     public void render(float delta) {
 
-        // Handling input for player movement using WASD
-        int up    = Gdx.input.isKeyPressed(Input.Keys.W) ? 1 : 0;
-        int down  = Gdx.input.isKeyPressed(Input.Keys.S) ? 1 : 0;
-        int left  = Gdx.input.isKeyPressed(Input.Keys.A) ? 1 : 0;
-        int right = Gdx.input.isKeyPressed(Input.Keys.D) ? 1 : 0;
+        // Handling input for player movement using WASD and up/down/left/right arrows.
+        int up    = Gdx.input.isKeyPressed(Input.Keys.W) || Gdx.input.isKeyPressed(Input.Keys.UP) ? 1 : 0;
+        int down  = Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN) ? 1 : 0;
+        int left  = Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT) ? 1 : 0;
+        int right = Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT) ? 1 : 0;
+
 
         int horizontal = (right - left);
         int vertical = (up - down);
