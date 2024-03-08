@@ -29,6 +29,9 @@ public class DesktopLauncher {
 		// Set the title of the application window
 		config.setTitle("ENGHeslingtonHustle");
 
+		// Disable use of resizable window
+		config.setResizable(false);
+
 		// Create the Lwjgl3Application instance using the defined config settings and HesHustle game class
 		new Lwjgl3Application(new HesHustle(), config);
 	}
