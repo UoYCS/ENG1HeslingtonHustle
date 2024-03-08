@@ -1,6 +1,7 @@
 package com.mygdx.game.screens;
 
 // Importing required libraries and classes from libgdx
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -12,6 +13,7 @@ import com.mygdx.game.HesHustle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * MainGameScreen class represents the game
@@ -40,6 +42,7 @@ public class MainGameScreen implements Screen {
     float energy = 100;
     float time = 0;
 
+    int day = 0;
 
 
     // Orthographic camera for rendering
@@ -161,21 +164,33 @@ public class MainGameScreen implements Screen {
             for (Activity activity : activities) {
                 if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
 
-                    if (this.energy + activity.getEnergyUsage() >= 0) {
-                        this.energy += activity.getEnergyUsage();
-
-                        if (this.energy >= 100){
-                            this.energy = 100;
-                        }
-
-                        System.out.println(this.energy);
+                    if (Objects.equals(activity.getType(), "sleep")) {
+                        day += 1;
+                        energy = 100;
+                        time = 0;
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day));
+                        System.out.println("Day:" + day);
                     }
-                    else{
-                        System.out.println("Not enough energy to perform activity");
+
+                    else {
+                        if (this.energy + activity.getEnergyUsage() >= 0) {
+                            this.energy += activity.getEnergyUsage();
+
+                            if (this.energy >= 100) {
+                                this.energy = 100;
+                            }
+
+                            System.out.println(this.energy);
+                        } else {
+                            System.out.println("Not enough energy to perform activity");
+                        }
                     }
                 }
             }
         }
+
+
+
 
 
         // Clear Screen and begin rendering
@@ -192,11 +207,11 @@ public class MainGameScreen implements Screen {
         }
 
 
+
         // Update the position of the game camera using previous logic
         game.camera.position.set(camera_x, camera_y, 0);
         game.camera.update();
         game.batch.setProjectionMatrix(game.camera.combined);
-
         // Draw player based on previous logic and user input
         game.batch.draw(player_texture, player_x, player_y);
         game.batch.draw(mark, player_x, player_y);
