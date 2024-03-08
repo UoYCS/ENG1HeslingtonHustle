@@ -169,6 +169,9 @@ public class MainGameScreen implements Screen {
 
                         System.out.println(this.energy);
                     }
+                    else{
+                        System.out.println("Not enough energy to perform activity");
+                    }
                 }
             }
         }
