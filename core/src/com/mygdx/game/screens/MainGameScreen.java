@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.HesHustle;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,15 @@ public class MainGameScreen implements Screen {
     float energy = 100;
     float time = 0;
 
+    // Objects used for avatar animation
+    Animation<TextureRegion> walkDownAnimation; // Must declare frame type (TextureRegion)
+    Animation<TextureRegion> walkRightAnimation; // Must declare frame type (TextureRegion)
+    Animation<TextureRegion> walkUpAnimation; // Must declare frame type (TextureRegion)
+    Animation<TextureRegion> walkLeftAnimation; // Must declare frame type (TextureRegion)
+    Texture spriteSheet = new Texture(Gdx.files.internal("SpriteSheet.png"));;
 
+    // A variable for tracking elapsed time for the animation
+    float stateTime;
 
     // Orthographic camera for rendering
     OrthographicCamera camera;
@@ -78,6 +88,29 @@ public class MainGameScreen implements Screen {
         //activities.add(new Activity("eat", 600, 400, 20, 20));
 
 
+        // Creates the walking animation cycles for the avatar
+        TextureRegion[][] tmp = TextureRegion.split(spriteSheet, spriteSheet.getWidth() / 4, spriteSheet.getHeight()/4);
+
+        TextureRegion[] walkDownFrames = new TextureRegion[4];
+        TextureRegion[] walkRightFrames = new TextureRegion[4];
+        TextureRegion[] walkUpFrames = new TextureRegion[4];
+        TextureRegion[] walkLeftFrames = new TextureRegion[4];
+
+
+        for (int i = 0; i < 4; i++) {
+            walkDownFrames[i] = tmp[0][i];
+            walkRightFrames[i] = tmp[1][i];
+            walkUpFrames[i] = tmp[2][i];
+            walkLeftFrames[i] = tmp[3][i];
+        }
+
+        walkDownAnimation = new Animation<TextureRegion>(0.125f, walkDownFrames);
+        walkRightAnimation = new Animation<TextureRegion>(0.125f, walkRightFrames);
+        walkUpAnimation = new Animation<TextureRegion>(0.125f, walkUpFrames);
+        walkLeftAnimation = new Animation<TextureRegion>(0.125f, walkLeftFrames);
+
+        stateTime = 0f;
+
     }
 
     /**
@@ -88,7 +121,7 @@ public class MainGameScreen implements Screen {
         map = new Sprite(new Texture("temp_map.png"));
         map.setPosition(0,0);
         map.setSize(GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT);
-        player_texture = new Texture("player.png");
+        player_texture = new Texture("Character.png");
         act = new Texture("red_dot.png");
         mark = new Texture("marker_pixel.png");
     }
@@ -188,7 +221,6 @@ public class MainGameScreen implements Screen {
         for (Activity activity : activities) {
             game.batch.draw(act, activity.getX_location() - ((float) act.getWidth() /2), activity.getY_location() - ((float) act.getHeight() /2));
             game.batch.draw(mark, activity.getX_location(), activity.getY_location());
-
         }
 
 
@@ -197,12 +229,49 @@ public class MainGameScreen implements Screen {
         game.camera.update();
         game.batch.setProjectionMatrix(game.camera.combined);
 
-        // Draw player based on previous logic and user input
-        game.batch.draw(player_texture, player_x, player_y);
-        game.batch.draw(mark, player_x, player_y);
+        // Draw player based on previous logic and user input with the corresponding animation
+
+        // if the player is moving right, play the walking up animation
+
+        if (horizontal == 1){
+            spriteAnimate(walkRightAnimation, player_x, player_y);
+        }
+
+        // if the player is moving left, play the walking left animation
+
+        else if (horizontal == -1){
+            spriteAnimate(walkLeftAnimation, player_x, player_y);
+        }
+
+        // if the player is moving down, play the walking down animation
+
+        else if (vertical == -1){
+            spriteAnimate(walkDownAnimation, player_x, player_y);
+        }
+
+        // if the player is moving up, play the walking up animation
+
+        else if (vertical == 1){
+            spriteAnimate(walkUpAnimation, player_x, player_y);
+        }
+
+        // if the player isn't moving, display the idle character model
+
+        else {
+            game.batch.draw(player_texture, player_x, player_y);
+            game.batch.draw(mark, player_x, player_y);
+        }
 
         // End rendering for frame
         game.batch.end();
+    }
+
+
+    // method for displaying the avatar animation to the screen
+    public void spriteAnimate(Animation<TextureRegion> animation, float player_x, float player_y){
+        stateTime += Gdx.graphics.getDeltaTime();
+        TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
+        game.batch.draw(currentFrame, player_x, player_y);
     }
 
 
@@ -257,6 +326,7 @@ public class MainGameScreen implements Screen {
     @Override
     public void dispose() {
         player_texture.dispose();
+        spriteSheet.dispose();
     }
 }
 
