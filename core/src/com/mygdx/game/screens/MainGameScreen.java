@@ -26,9 +26,13 @@ public class MainGameScreen implements Screen {
 
     // Game assets
     Texture player_texture;    // Player Texture
-    Texture act; // Activity marker texture (Temporary)
     Sprite map;     // Map Background Sprite
-    Texture mark;
+
+    // The textures for the activity markers
+    TextureRegion recreationMarker;
+    TextureRegion eatMarker;
+    TextureRegion studyMarker;
+    TextureRegion sleepMarker;
 
     // Game world dimensions
     final float GAME_WORLD_WIDTH = 1024;
@@ -42,12 +46,13 @@ public class MainGameScreen implements Screen {
     float energy = 100;
     float time = 0;
 
-    // Objects used for avatar animation
-    Animation<TextureRegion> walkDownAnimation; // Must declare frame type (TextureRegion)
-    Animation<TextureRegion> walkRightAnimation; // Must declare frame type (TextureRegion)
-    Animation<TextureRegion> walkUpAnimation; // Must declare frame type (TextureRegion)
-    Animation<TextureRegion> walkLeftAnimation; // Must declare frame type (TextureRegion)
-    Texture spriteSheet = new Texture(Gdx.files.internal("SpriteSheet.png"));;
+    // Objects used for avatar animation and other textures
+    Animation<TextureRegion> walkDownAnimation;
+    Animation<TextureRegion> walkRightAnimation;
+    Animation<TextureRegion> walkUpAnimation;
+    Animation<TextureRegion> walkLeftAnimation;
+    Texture spriteSheet = new Texture(Gdx.files.internal("SpriteSheet.png"));
+    Texture markersPNG = new Texture(Gdx.files.internal("Markers.png"));;
 
     // A variable for tracking elapsed time for the animation
     float stateTime;
@@ -80,14 +85,6 @@ public class MainGameScreen implements Screen {
         this.game.camera = this.camera;
         this.game.camera.position.set(player_x, player_y, 0);
 
-
-        // Create Activity instances and add them to the activities ArrayList
-        activities.add(new Activity("study", 600, 400, -20, 20));
-        activities.add(new Activity("sleep", 600, 300, 20, 20));
-        //activities.add(new Activity("rec", 600, 400, 20, 20));
-        //activities.add(new Activity("eat", 600, 400, 20, 20));
-
-
         // Creates the walking animation cycles for the avatar
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet, spriteSheet.getWidth() / 4, spriteSheet.getHeight()/4);
 
@@ -111,6 +108,20 @@ public class MainGameScreen implements Screen {
 
         stateTime = 0f;
 
+        // stores the marker textures in the corresponding variables
+
+        TextureRegion[][] tmpMarkers = TextureRegion.split(markersPNG, markersPNG.getWidth() / 4, markersPNG.getHeight());
+
+        recreationMarker = tmpMarkers[0][0];
+        eatMarker = tmpMarkers[0][1];
+        studyMarker = tmpMarkers[0][2];
+        sleepMarker = tmpMarkers[0][3];
+
+        // Create Activity instances and add them to the activities ArrayList
+        activities.add(new Activity("study", 600, 400, -10, 20, studyMarker));
+        activities.add(new Activity("sleep", 600, 300, 20, 20, sleepMarker));
+        activities.add(new Activity("rec", 500, 400, -20, 20, recreationMarker));
+        activities.add(new Activity("eat", 500, 300, 10, 20, eatMarker));
     }
 
     /**
@@ -122,8 +133,6 @@ public class MainGameScreen implements Screen {
         map.setPosition(0,0);
         map.setSize(GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT);
         player_texture = new Texture("Character.png");
-        act = new Texture("red_dot.png");
-        mark = new Texture("marker_pixel.png");
     }
 
     /**
@@ -216,11 +225,9 @@ public class MainGameScreen implements Screen {
         game.batch.begin();
         map.draw(game.batch);
 
-        // For each activity, draw it on the map
-        // TEMPORARY
+        // For each activity, draw it on the map with its corresponding marker
         for (Activity activity : activities) {
-            game.batch.draw(act, activity.getX_location() - ((float) act.getWidth() /2), activity.getY_location() - ((float) act.getHeight() /2));
-            game.batch.draw(mark, activity.getX_location(), activity.getY_location());
+            game.batch.draw(activity.getMarker(), activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2), activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
         }
 
 
@@ -259,7 +266,6 @@ public class MainGameScreen implements Screen {
 
         else {
             game.batch.draw(player_texture, player_x, player_y);
-            game.batch.draw(mark, player_x, player_y);
         }
 
         // End rendering for frame
@@ -332,7 +338,7 @@ public class MainGameScreen implements Screen {
 
 
 /**
- * Activity Class used to represent an activity with its coordinates, type, and resource requirements
+ * Activity Class used to represent an activity with its coordinates, type, resource requirements and marker texture
  */
 class Activity {
     private final String type;
@@ -340,13 +346,15 @@ class Activity {
     private final int y_location;
     private final float energyUsage;
     private final float timeUsage;
+    private final TextureRegion marker;
 
-    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage) {
+    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage, TextureRegion marker) {
         this.type = type;
         this.x_location = x_location;
         this.y_location = y_location;
         this.energyUsage = energyUsage;
         this.timeUsage = timeUsage;
+        this.marker = marker;
     }
 
     public int getX_location() {
@@ -368,6 +376,8 @@ class Activity {
     public float getTimeUsage() {
         return timeUsage;
     }
+
+    public TextureRegion getMarker() { return marker; }
 
     /**
      * Check if the player is cloes enough to interact with the activity.
