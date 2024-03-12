@@ -17,7 +17,7 @@ public class DayScreen implements Screen {
     private final HesHustle game;
     private final int[] studyCounter;
     private final int[] recCounter;
-    private final int[] eatCounter;
+    private final int[][] eatCounter;
 
 
     int day;
@@ -26,7 +26,7 @@ public class DayScreen implements Screen {
     private SpriteBatch dayBatch;
 
 
-    public DayScreen(HesHustle game, Screen MainGameScreen, int day, int[] studyCounter, int[] recCounter, int[] eatCounter) {
+    public DayScreen(HesHustle game, Screen MainGameScreen, int day, int[] studyCounter, int[] recCounter, int[][] eatCounter) {
         this.game = game;
         this.MainGameScreen = MainGameScreen;
         this.day = day;
@@ -58,7 +58,7 @@ public class DayScreen implements Screen {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(this.MainGameScreen);
             }
             else {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(this.game, this.MainGameScreen));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(this.game, this.MainGameScreen, studyCounter, recCounter, eatCounter));
 
             }
         }

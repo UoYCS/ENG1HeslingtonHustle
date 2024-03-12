@@ -186,7 +186,7 @@ public class MainGameScreen implements Screen {
                         time = 0;
                         mealsEaten = 0;
 
-                        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter[day-1]));
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
                     }
 
                     else if (Objects.equals(activity.getType(), "eat")) {
