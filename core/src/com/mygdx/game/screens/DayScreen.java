@@ -15,22 +15,32 @@ public class DayScreen implements Screen {
 
     private final Screen MainGameScreen;
     private final HesHustle game;
+    private final int[] studyCounter;
+    private final int[] recCounter;
+    private final int[][] eatCounter;
+
+
     int day;
 
     private BitmapFont font;
     private SpriteBatch dayBatch;
 
 
-    public DayScreen(HesHustle game, Screen MainGameScreen, int day) {
+    public DayScreen(HesHustle game, Screen MainGameScreen, int day, int[] studyCounter, int[] recCounter, int[][] eatCounter) {
         this.game = game;
         this.MainGameScreen = MainGameScreen;
         this.day = day;
+
+
+        // Passing in activity counters to create day summary
+        this.studyCounter = studyCounter;
+        this.recCounter = recCounter;
+        this.eatCounter = eatCounter;
+
+
+
         dayBatch = new SpriteBatch();
-
         font = new BitmapFont();
-
-
-
         font.setColor(Color.WHITE);
         font.getData().setScale(5); // Adjust the scale as needed
     }
@@ -48,7 +58,7 @@ public class DayScreen implements Screen {
                 ((Game) Gdx.app.getApplicationListener()).setScreen(this.MainGameScreen);
             }
             else {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(this.game, this.MainGameScreen));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(this.game, this.MainGameScreen, studyCounter, recCounter, eatCounter));
 
             }
         }

@@ -14,13 +14,16 @@ import com.mygdx.game.HesHustle;
 public class EndGameScreen implements Screen {
 
     private final Screen MainGameScreen;
+    private final int[] studyCounter;
+    private final int[] recCounter;
+    private final int[][] eatCounter;
 
     private BitmapFont font;
     private SpriteBatch dayBatch;
     private HesHustle game;
 
 
-    public EndGameScreen(HesHustle game, Screen MainGameScreen) {
+    public EndGameScreen(HesHustle game, Screen MainGameScreen, int[] studyCounter, int[] recCounter, int[][] eatCounter) {
         this.game = game;
         this.MainGameScreen = MainGameScreen;
 
@@ -28,7 +31,9 @@ public class EndGameScreen implements Screen {
 
         font = new BitmapFont();
 
-
+        this.studyCounter = studyCounter;
+        this.recCounter = recCounter;
+        this.eatCounter = eatCounter;
 
         font.setColor(Color.WHITE);
         font.getData().setScale(5); // Adjust the scale as needed

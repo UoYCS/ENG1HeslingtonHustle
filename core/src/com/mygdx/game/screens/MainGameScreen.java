@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.HesHustle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,11 +40,20 @@ public class MainGameScreen implements Screen {
     float player_x = GAME_WORLD_WIDTH / 2;
     float player_y = GAME_WORLD_HEIGHT / 2;
 
-    float energy = 100;
-    float time = 0;
+    int energy = 100;
+
+    // Minutes from 8am
+    // Max Value = 960 @ 12am.
+    int time = 0;
 
     int day = 0;
+    final int gameDaysLength = 7;
 
+    // Counters to track what activities are done on each day
+    int[] studyCounter = new int[gameDaysLength];
+    int[] recCounter = new int[gameDaysLength];
+    int[][] eatCounter = new int[gameDaysLength][3];
+    int mealsEaten = 0;
 
     // Orthographic camera for rendering
     OrthographicCamera camera;
@@ -75,10 +85,11 @@ public class MainGameScreen implements Screen {
 
 
         // Create Activity instances and add them to the activities ArrayList
-        activities.add(new Activity("study", 600, 400, -20, 20));
-        activities.add(new Activity("sleep", 600, 300, 20, 20));
-        //activities.add(new Activity("rec", 600, 400, 20, 20));
-        //activities.add(new Activity("eat", 600, 400, 20, 20));
+        activities.add(new Activity("study", 600, 400, -20, 90));
+        activities.add(new Activity("sleep", 600, 300, 0, 0));
+        activities.add(new Activity("eat", 500, 400, 10, 30));
+        activities.add(new Activity("rec", 500, 300, 20, 60));
+
 
 
     }
@@ -165,29 +176,55 @@ public class MainGameScreen implements Screen {
                 if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
 
                     if (Objects.equals(activity.getType(), "sleep")) {
+                        System.out.println("Day completed:" + day);
+                        System.out.println(Arrays.toString(studyCounter));
+                        System.out.println(Arrays.toString(eatCounter[day]));
+                        System.out.println(Arrays.toString(recCounter));
+
                         day += 1;
                         energy = 100;
                         time = 0;
-                        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day));
-                        System.out.println("Day:" + day);
+                        mealsEaten = 0;
+
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
                     }
 
-                    else {
-                        if (this.energy + activity.getEnergyUsage() >= 0) {
-                            this.energy += activity.getEnergyUsage();
-
-                            if (this.energy >= 100) {
-                                this.energy = 100;
-                            }
-
-                            System.out.println(this.energy);
-                        } else {
-                            System.out.println("Not enough energy to perform activity");
+                    else if (Objects.equals(activity.getType(), "eat")) {
+                        if (mealsEaten == 3){
+                            System.out.println("Already eaten 3 times today");
+                        }
+                        else {
+                            eatCounter[day][mealsEaten] = time;
+                            mealsEaten++;
+                            this.energy += (int) activity.getEnergyUsage();
+                            this.time += (int) activity.getTimeUsage();
                         }
                     }
+
+                    else if (this.energy + activity.getEnergyUsage() >= 0) {
+                        this.energy += (int) activity.getEnergyUsage();
+                        this.time += (int) activity.getTimeUsage();
+
+                        if (Objects.equals(activity.getType(), "study")) {
+                            studyCounter[day]++;
+                        }
+
+                        if (Objects.equals(activity.getType(), "rec")) {
+                            recCounter[day]++;
+                        }
+
+                    } else {
+                        System.out.println("Not enough energy to perform activity");
+                        }
+
+                    if (this.energy >= 100) {
+                        this.energy = 100;
+                    }
+
                 }
             }
         }
+
 
 
 
