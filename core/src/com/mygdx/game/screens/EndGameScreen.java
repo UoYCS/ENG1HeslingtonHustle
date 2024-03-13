@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.HesHustle;
 
+import java.util.Arrays;
+
 public class EndGameScreen implements Screen {
 
     private final Screen MainGameScreen;
@@ -21,6 +23,8 @@ public class EndGameScreen implements Screen {
     private BitmapFont font;
     private SpriteBatch dayBatch;
     private HesHustle game;
+
+    private int score = 0;
 
 
     public EndGameScreen(HesHustle game, Screen MainGameScreen, int[] studyCounter, int[] recCounter, int[][] eatCounter) {
@@ -46,6 +50,80 @@ public class EndGameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+
+        score = 0;
+
+        ///
+        /// Score Calculation
+        ///
+
+        // Studying = Points
+        // Higher score if the student studies up to 10 times a week
+        // Points are removed for studying over 11 times
+        // Bonus for working everyday
+
+
+        // Number of times studied
+        int studyCount = Arrays.stream(studyCounter).sum();
+
+        // Number of different days the player studied
+        int daysStudied = (int) ((int) 7 - (Arrays.stream(studyCounter).filter(num -> num == 0).count()));
+
+
+        if (studyCount <= 10){
+            score += studyCount * 50;
+        } else {
+            score += 10 * 50;
+            // Penalising over-studying
+            score -= (studyCount-10) * 25;
+        }
+
+        // Bonus for working everyday
+        if (daysStudied == 7){
+            score += 100;
+        } else if (daysStudied == 6) {
+           if (studyCount > 6){
+               // Missed a day but caught up
+               score += 25;
+           }
+        } else if (daysStudied < 6) {
+            score -= 100;
+        }
+
+
+        // Eating at reasonable intervals = Good
+        // Bonus for eating 3 reasonably spaced meals a day
+
+
+        
+        // Recreational activities = Good
+        // Points every time
+        // Bonus for doing it everyday
+
+        // Number of times studied
+        int recCount = Arrays.stream(recCounter).sum();
+
+        // Number of different days the player studied
+        int daysRec = (int) ((int) 7 - (Arrays.stream(recCounter).filter(num -> num == 0).count()));
+
+
+        // Points for doing recreational activities, only up to 7 times
+        score += Math.min(recCount, 7) * 25;
+
+        // Bonus for working everyday
+        if (daysRec == 7){
+            score += 100;
+        }
+
+
+
+
+
+
+
+
+
+
         ScreenUtils.clear(0, 0, 0, 1);
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(this.game));
