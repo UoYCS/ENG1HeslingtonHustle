@@ -46,13 +46,6 @@ public class EndGameScreen implements Screen {
     @Override
     public void show() {
 
-    }
-
-    @Override
-    public void render(float delta) {
-
-        score = 0;
-
         ///
         /// Score Calculation
         ///
@@ -82,10 +75,10 @@ public class EndGameScreen implements Screen {
         if (daysStudied == 7){
             score += 100;
         } else if (daysStudied == 6) {
-           if (studyCount > 6){
-               // Missed a day but caught up
-               score += 25;
-           }
+            if (studyCount > 6){
+                // Missed a day but caught up
+                score += 25;
+            }
         } else if (daysStudied < 6) {
             score -= 100;
         }
@@ -94,8 +87,31 @@ public class EndGameScreen implements Screen {
         // Eating at reasonable intervals = Good
         // Bonus for eating 3 reasonably spaced meals a day
 
+        // Loop through each day of the week
 
-        
+        int totalDays = eatCounter.length;
+        int mealsPerDay = eatCounter[0].length;
+
+        for (int i = 0; i < totalDays; i++) {
+            int mealsEaten = (int) Arrays.stream(eatCounter[i]).filter(num -> num != 0).count();
+            System.out.println(mealsEaten);
+
+            switch (mealsEaten){
+                case 0:
+                    score -= 25;
+                case 1:
+                    score += 10;
+                case 2:
+                    score += 30;
+                case 3:
+                    score += 50;
+            }
+        }
+
+
+
+
+
         // Recreational activities = Good
         // Points every time
         // Bonus for doing it everyday
@@ -114,15 +130,10 @@ public class EndGameScreen implements Screen {
         if (daysRec == 7){
             score += 100;
         }
+    }
 
-
-
-
-
-
-
-
-
+    @Override
+    public void render(float delta) {
 
         ScreenUtils.clear(0, 0, 0, 1);
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
