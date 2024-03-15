@@ -147,18 +147,7 @@ public class MainGameScreen implements Screen {
         activities.add(new Activity("sleep", 600, 300, 20, 20, sleepMarker));
         activities.add(new Activity("rec", 500, 400, -20, 20, recreationMarker));
         activities.add(new Activity("eat", 500, 300, 10, 20, eatMarker));
-      
-      
-        stage = new Stage();
-        skin = new Skin(Gdx.files.internal("skin/glassy-ui.json"));
 
-        label = new Label("Heslington Hustle - Use WASD or Arrow Keys to Move ", skin);
-        label.setColor(Color.BLACK);
-        label.setPosition(10, Gdx.graphics.getHeight() - 10 - label.getHeight());
-
-        stage.addActor(label);
-
-        Gdx.input.setInputProcessor(stage);
 
         
     }
@@ -348,8 +337,6 @@ public class MainGameScreen implements Screen {
         }
 
 
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
 
         // End rendering for frame
         game.batch.end();
