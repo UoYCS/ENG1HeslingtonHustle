@@ -16,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 
 import com.mygdx.game.HesHustle;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,9 +35,13 @@ public class MainGameScreen implements Screen {
 
     // Game assets
     Texture player_texture;    // Player Texture
-    Texture act; // Activity marker texture (Temporary)
     Sprite map;     // Map Background Sprite
-    Texture mark;
+
+    // The textures for the activity markers
+    TextureRegion recreationMarker;
+    TextureRegion eatMarker;
+    TextureRegion studyMarker;
+    TextureRegion sleepMarker;
 
     // Game world dimensions
     final float GAME_WORLD_WIDTH = 1024;
@@ -47,6 +53,17 @@ public class MainGameScreen implements Screen {
     float player_y = GAME_WORLD_HEIGHT / 2;
 
     int energy = 100;
+
+    // Objects used for avatar animation and other textures
+    Animation<TextureRegion> walkDownAnimation;
+    Animation<TextureRegion> walkRightAnimation;
+    Animation<TextureRegion> walkUpAnimation;
+    Animation<TextureRegion> walkLeftAnimation;
+    Texture spriteSheet = new Texture(Gdx.files.internal("SpriteSheet.png"));
+    Texture markersPNG = new Texture(Gdx.files.internal("Markers.png"));;
+
+    // A variable for tracking elapsed time for the animation
+    float stateTime;
 
     // Minutes from 8am
     // Max Value = 960 @ 12am.
@@ -61,6 +78,7 @@ public class MainGameScreen implements Screen {
     int[][] eatCounter = new int[gameDaysLength][3];
     int mealsEaten = 0;
 
+  
     // Orthographic camera for rendering
     OrthographicCamera camera;
 
@@ -92,14 +110,45 @@ public class MainGameScreen implements Screen {
         this.game.camera = this.camera;
         this.game.camera.position.set(player_x, player_y, 0);
 
+        // Creates the walking animation cycles for the avatar
+        TextureRegion[][] tmp = TextureRegion.split(spriteSheet, spriteSheet.getWidth() / 4, spriteSheet.getHeight()/4);
+
+        TextureRegion[] walkDownFrames = new TextureRegion[4];
+        TextureRegion[] walkRightFrames = new TextureRegion[4];
+        TextureRegion[] walkUpFrames = new TextureRegion[4];
+        TextureRegion[] walkLeftFrames = new TextureRegion[4];
+
+
+        for (int i = 0; i < 4; i++) {
+            walkDownFrames[i] = tmp[0][i];
+            walkRightFrames[i] = tmp[1][i];
+            walkUpFrames[i] = tmp[2][i];
+            walkLeftFrames[i] = tmp[3][i];
+        }
+
+        walkDownAnimation = new Animation<TextureRegion>(0.125f, walkDownFrames);
+        walkRightAnimation = new Animation<TextureRegion>(0.125f, walkRightFrames);
+        walkUpAnimation = new Animation<TextureRegion>(0.125f, walkUpFrames);
+        walkLeftAnimation = new Animation<TextureRegion>(0.125f, walkLeftFrames);
+
+        stateTime = 0f;
+
+        // stores the marker textures in the corresponding variables
+
+        TextureRegion[][] tmpMarkers = TextureRegion.split(markersPNG, markersPNG.getWidth() / 4, markersPNG.getHeight());
+       
+        recreationMarker = tmpMarkers[0][0];
+        eatMarker = tmpMarkers[0][1];
+        studyMarker = tmpMarkers[0][2];
+        sleepMarker = tmpMarkers[0][3];
 
         // Create Activity instances and add them to the activities ArrayList
-        activities.add(new Activity("study", 600, 400, -20, 90));
-        activities.add(new Activity("sleep", 600, 300, 0, 0));
-        activities.add(new Activity("eat", 500, 400, 10, 30));
-        activities.add(new Activity("rec", 500, 300, 20, 60));
-
-
+        activities.add(new Activity("study", 600, 400, -10, 20, studyMarker));
+        activities.add(new Activity("sleep", 600, 300, 20, 20, sleepMarker));
+        activities.add(new Activity("rec", 500, 400, -20, 20, recreationMarker));
+        activities.add(new Activity("eat", 500, 300, 10, 20, eatMarker));
+      
+      
         stage = new Stage();
         skin = new Skin(Gdx.files.internal("skin/glassy-ui.json"));
 
@@ -111,6 +160,7 @@ public class MainGameScreen implements Screen {
 
         Gdx.input.setInputProcessor(stage);
 
+        
     }
 
     /**
@@ -121,9 +171,7 @@ public class MainGameScreen implements Screen {
         map = new Sprite(new Texture("temp_map.png"));
         map.setPosition(0,0);
         map.setSize(GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT);
-        player_texture = new Texture("player.png");
-        act = new Texture("red_dot.png");
-        mark = new Texture("marker_pixel.png");
+        player_texture = new Texture("Character.png");
     }
 
     /**
@@ -254,12 +302,9 @@ public class MainGameScreen implements Screen {
         game.batch.begin();
         map.draw(game.batch);
 
-        // For each activity, draw it on the map
-        // TEMPORARY
+        // For each activity, draw it on the map with its corresponding marker
         for (Activity activity : activities) {
-            game.batch.draw(act, activity.getX_location() - ((float) act.getWidth() /2), activity.getY_location() - ((float) act.getHeight() /2));
-            game.batch.draw(mark, activity.getX_location(), activity.getY_location());
-
+            game.batch.draw(activity.getMarker(), activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2), activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
         }
 
 
@@ -268,15 +313,54 @@ public class MainGameScreen implements Screen {
         game.camera.position.set(camera_x, camera_y, 0);
         game.camera.update();
         game.batch.setProjectionMatrix(game.camera.combined);
-        // Draw player based on previous logic and user input
-        game.batch.draw(player_texture, player_x, player_y);
-        game.batch.draw(mark, player_x, player_y);
+      
+
+        // Draw player based on previous logic and user input with the corresponding animation
+
+        // if the player is moving right, play the walking up animation
+
+        if (horizontal == 1){
+            spriteAnimate(walkRightAnimation, player_x, player_y);
+        }
+
+        // if the player is moving left, play the walking left animation
+
+        else if (horizontal == -1){
+            spriteAnimate(walkLeftAnimation, player_x, player_y);
+        }
+
+        // if the player is moving down, play the walking down animation
+
+        else if (vertical == -1){
+            spriteAnimate(walkDownAnimation, player_x, player_y);
+        }
+
+        // if the player is moving up, play the walking up animation
+
+        else if (vertical == 1){
+            spriteAnimate(walkUpAnimation, player_x, player_y);
+        }
+
+        // if the player isn't moving, display the idle character model
+
+        else {
+            game.batch.draw(player_texture, player_x, player_y);
+        }
+
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
         // End rendering for frame
         game.batch.end();
+    }
+
+
+    // method for displaying the avatar animation to the screen
+    public void spriteAnimate(Animation<TextureRegion> animation, float player_x, float player_y){
+        stateTime += Gdx.graphics.getDeltaTime();
+        TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
+        game.batch.draw(currentFrame, player_x, player_y);
     }
 
 
@@ -331,12 +415,13 @@ public class MainGameScreen implements Screen {
     @Override
     public void dispose() {
         player_texture.dispose();
+        spriteSheet.dispose();
     }
 }
 
 
 /**
- * Activity Class used to represent an activity with its coordinates, type, and resource requirements
+ * Activity Class used to represent an activity with its coordinates, type, resource requirements and marker texture
  */
 class Activity {
     private final String type;
@@ -344,13 +429,15 @@ class Activity {
     private final int y_location;
     private final float energyUsage;
     private final float timeUsage;
+    private final TextureRegion marker;
 
-    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage) {
+    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage, TextureRegion marker) {
         this.type = type;
         this.x_location = x_location;
         this.y_location = y_location;
         this.energyUsage = energyUsage;
         this.timeUsage = timeUsage;
+        this.marker = marker;
     }
 
     public int getX_location() {
@@ -372,6 +459,8 @@ class Activity {
     public float getTimeUsage() {
         return timeUsage;
     }
+
+    public TextureRegion getMarker() { return marker; }
 
     /**
      * Check if the player is cloes enough to interact with the activity.
