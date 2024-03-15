@@ -70,8 +70,8 @@ public class MainMenuScreen implements Screen {
         quitButtonBounds = new Rectangle(startX + offset + longButtonWidth, (float) (screenHeight * 0.3), longButtonWidth, longButtonHeight);
 
         int gap = 5;
-        muteButtonBounds = new Rectangle(screenWidth - shortButtonWidth * 2 - gap * 2, gap, shortButtonWidth, shortButtonHeight);
-        fullButtonBounds = new Rectangle(screenWidth - shortButtonWidth, gap, shortButtonWidth, shortButtonHeight);
+        fullButtonBounds = new Rectangle(screenWidth - shortButtonWidth * 2 - gap * 2, gap, shortButtonWidth, shortButtonHeight);
+        muteButtonBounds = new Rectangle(screenWidth - shortButtonWidth, gap, shortButtonWidth, shortButtonHeight);
     }
 
 
