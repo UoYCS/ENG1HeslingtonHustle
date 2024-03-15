@@ -1,19 +1,28 @@
 package com.mygdx.game.screens;
 
 // Importing required libraries and classes from libgdx
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
+
 import com.mygdx.game.HesHustle;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * MainGameScreen class represents the game
@@ -43,8 +52,7 @@ public class MainGameScreen implements Screen {
     float player_x = GAME_WORLD_WIDTH / 2;
     float player_y = GAME_WORLD_HEIGHT / 2;
 
-    float energy = 100;
-    float time = 0;
+    int energy = 100;
 
     // Objects used for avatar animation and other textures
     Animation<TextureRegion> walkDownAnimation;
@@ -57,6 +65,20 @@ public class MainGameScreen implements Screen {
     // A variable for tracking elapsed time for the animation
     float stateTime;
 
+    // Minutes from 8am
+    // Max Value = 960 @ 12am.
+    int time = 0;
+
+    int day = 0;
+    final int gameDaysLength = 7;
+
+    // Counters to track what activities are done on each day
+    int[] studyCounter = new int[gameDaysLength];
+    int[] recCounter = new int[gameDaysLength];
+    int[][] eatCounter = new int[gameDaysLength][3];
+    int mealsEaten = 0;
+
+  
     // Orthographic camera for rendering
     OrthographicCamera camera;
 
@@ -66,7 +88,10 @@ public class MainGameScreen implements Screen {
     // Initialise an ArrayList to store details about the activities players can interact with
     private final List<Activity> activities = new ArrayList<>();
 
-
+    // Implementing a stage for UI elements
+    private Stage stage;
+    private Skin skin;
+    private Label label;
 
     /**
      * Constructor for MainGameScreen Class
@@ -111,7 +136,7 @@ public class MainGameScreen implements Screen {
         // stores the marker textures in the corresponding variables
 
         TextureRegion[][] tmpMarkers = TextureRegion.split(markersPNG, markersPNG.getWidth() / 4, markersPNG.getHeight());
-
+       
         recreationMarker = tmpMarkers[0][0];
         eatMarker = tmpMarkers[0][1];
         studyMarker = tmpMarkers[0][2];
@@ -122,6 +147,20 @@ public class MainGameScreen implements Screen {
         activities.add(new Activity("sleep", 600, 300, 20, 20, sleepMarker));
         activities.add(new Activity("rec", 500, 400, -20, 20, recreationMarker));
         activities.add(new Activity("eat", 500, 300, 10, 20, eatMarker));
+      
+      
+        stage = new Stage();
+        skin = new Skin(Gdx.files.internal("skin/glassy-ui.json"));
+
+        label = new Label("Heslington Hustle - Use WASD or Arrow Keys to Move ", skin);
+        label.setColor(Color.BLACK);
+        label.setPosition(10, Gdx.graphics.getHeight() - 10 - label.getHeight());
+
+        stage.addActor(label);
+
+        Gdx.input.setInputProcessor(stage);
+
+        
     }
 
     /**
@@ -203,21 +242,59 @@ public class MainGameScreen implements Screen {
             for (Activity activity : activities) {
                 if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
 
-                    if (this.energy + activity.getEnergyUsage() >= 0) {
-                        this.energy += activity.getEnergyUsage();
+                    if (Objects.equals(activity.getType(), "sleep")) {
+                        System.out.println("Day completed:" + day);
+                        System.out.println(Arrays.toString(studyCounter));
+                        System.out.println(Arrays.toString(eatCounter[day]));
+                        System.out.println(Arrays.toString(recCounter));
 
-                        if (this.energy >= 100){
-                            this.energy = 100;
+                        day += 1;
+                        energy = 100;
+                        time = 0;
+                        mealsEaten = 0;
+
+                        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
+                    }
+
+                    else if (Objects.equals(activity.getType(), "eat")) {
+                        if (mealsEaten == 3){
+                            System.out.println("Already eaten 3 times today");
+                        }
+                        else {
+                            eatCounter[day][mealsEaten] = time;
+                            mealsEaten++;
+                            this.energy += (int) activity.getEnergyUsage();
+                            this.time += (int) activity.getTimeUsage();
+                        }
+                    }
+
+                    else if (this.energy + activity.getEnergyUsage() >= 0) {
+                        this.energy += (int) activity.getEnergyUsage();
+                        this.time += (int) activity.getTimeUsage();
+
+                        if (Objects.equals(activity.getType(), "study")) {
+                            studyCounter[day]++;
                         }
 
-                        System.out.println(this.energy);
-                    }
-                    else{
+                        if (Objects.equals(activity.getType(), "rec")) {
+                            recCounter[day]++;
+                        }
+
+                    } else {
                         System.out.println("Not enough energy to perform activity");
+                        }
+
+                    if (this.energy >= 100) {
+                        this.energy = 100;
                     }
+
                 }
             }
         }
+
+
+
+
 
 
         // Clear Screen and begin rendering
@@ -231,10 +308,12 @@ public class MainGameScreen implements Screen {
         }
 
 
+
         // Update the position of the game camera using previous logic
         game.camera.position.set(camera_x, camera_y, 0);
         game.camera.update();
         game.batch.setProjectionMatrix(game.camera.combined);
+      
 
         // Draw player based on previous logic and user input with the corresponding animation
 
@@ -267,6 +346,10 @@ public class MainGameScreen implements Screen {
         else {
             game.batch.draw(player_texture, player_x, player_y);
         }
+
+
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
 
         // End rendering for frame
         game.batch.end();
