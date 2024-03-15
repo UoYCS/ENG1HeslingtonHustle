@@ -49,7 +49,7 @@ public class MainMenuScreen implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
         GlyphLayout layout = new GlyphLayout();
-        layout.setText(font, "Main Menu");
+        layout.setText(font, "Main Menu\nPress F to Continue");
 
         font.draw(dayBatch, layout, (screenWidth - layout.width) / 2, (float) (screenHeight * 0.8));
 
