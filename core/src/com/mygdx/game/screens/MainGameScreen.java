@@ -302,7 +302,27 @@ public class MainGameScreen implements Screen {
         game.camera.position.set(camera_x, camera_y, 0);
         game.camera.update();
         game.batch.setProjectionMatrix(game.camera.combined);
-      
+
+        // Set colour of energy bar based on energy level
+        // If health above 66, green, if above 33, yellow, if below 33, red
+        String colour;
+        if (this.energy > 66){
+            colour = "green";
+        }
+        else if (this.energy > 33){
+            colour = "yellow";
+        }
+        else {
+            colour = "red";
+        }
+
+        float energyBarX = game.camera.position.x + game.camera.viewportWidth / 2 - 128 - 375; // 128 is the width of the health bar, 10 is the offset
+        float energyBarY = game.camera.position.y - game.camera.viewportHeight / 2 + 10; // 10 is the offset
+
+
+        // Draw the energy bar in bottom right corner of the screen
+        game.batch.draw(new Texture("energy_fill_" + colour + ".png"), energyBarX, energyBarY, (int) (this.energy * 1.28), 16);
+        game.batch.draw(new Texture("energy_bar.png"), energyBarX, energyBarY, 128, 16);
 
         // Draw player based on previous logic and user input with the corresponding animation
 
@@ -335,6 +355,7 @@ public class MainGameScreen implements Screen {
         else {
             game.batch.draw(player_texture, player_x, player_y);
         }
+
 
 
 
