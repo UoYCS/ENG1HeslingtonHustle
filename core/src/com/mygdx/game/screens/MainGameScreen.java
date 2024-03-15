@@ -6,13 +6,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 
 import com.mygdx.game.HesHustle;
@@ -60,7 +56,7 @@ public class MainGameScreen implements Screen {
     Animation<TextureRegion> walkUpAnimation;
     Animation<TextureRegion> walkLeftAnimation;
     Texture spriteSheet = new Texture(Gdx.files.internal("SpriteSheet.png"));
-    Texture markersPNG = new Texture(Gdx.files.internal("Markers.png"));;
+    Texture markersPNG = new Texture(Gdx.files.internal("Markers.png"));
 
     // A variable for tracking elapsed time for the animation
     float stateTime;
@@ -88,10 +84,6 @@ public class MainGameScreen implements Screen {
     // Initialise an ArrayList to store details about the activities players can interact with
     private final List<Activity> activities = new ArrayList<>();
 
-    // Implementing a stage for UI elements
-    private Stage stage;
-    private Skin skin;
-    private Label label;
 
     /**
      * Constructor for MainGameScreen Class
@@ -165,7 +157,6 @@ public class MainGameScreen implements Screen {
 
     /**
      * Renders the screen
-     *
      * render() method is automatically called by the game loop every frame to update elements
      * and render the game to the screen.
      *
@@ -353,10 +344,9 @@ public class MainGameScreen implements Screen {
 
     /**
      * Called when screen is resized.
-     *
      * Currently, not required and unused
-     * @param width
-     * @param height
+     * @param width ...
+     * @param height ...
      */
     @Override
     public void resize(int width, int height) {
@@ -365,7 +355,6 @@ public class MainGameScreen implements Screen {
 
     /**
      * Called when the game is paused.
-     *
      * Currently, not required and unused
      */
     @Override
@@ -375,7 +364,6 @@ public class MainGameScreen implements Screen {
 
     /**
      * Called when the game is resumed from the paused state.
-     *
      * Currently, not required and unused
      */
     @Override
@@ -385,7 +373,6 @@ public class MainGameScreen implements Screen {
 
     /**
      * Called when the MainGameScreen is no longer the current screen.
-     *
      * Currently, not required and unused
      */
     @Override
@@ -396,7 +383,6 @@ public class MainGameScreen implements Screen {
 
     /**
      * Called when this screen is no longer needed and all resources should be released
-     *
      * Used to dispose resources, textures, and other assets, to free up memory.
      */
     @Override
@@ -450,7 +436,7 @@ class Activity {
     public TextureRegion getMarker() { return marker; }
 
     /**
-     * Check if the player is cloes enough to interact with the activity.
+     * Check if the player is close enough to interact with the activity.
      *
      * @param playerX x-coordinate of the player
      * @param playerY y-coordinate of the player
