@@ -8,12 +8,15 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 
 import com.mygdx.game.HesHustle;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +34,12 @@ public class MainGameScreen implements Screen {
 
     // Game assets
     Texture player_texture;    // Player Texture
-    Sprite map;     // Map Background Sprite
+    Sprite temp_map;     // Map Background Sprite
+
+    private TiledMap map;
+
+
+
 
     // The textures for the activity markers
     TextureRegion recreationMarker;
@@ -149,9 +157,9 @@ public class MainGameScreen implements Screen {
      */
     @Override
     public void show() {
-        map = new Sprite(new Texture("temp_map.png"));
-        map.setPosition(0,0);
-        map.setSize(GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT);
+        temp_map = new Sprite(new Texture("temp_map.png"));
+        temp_map.setPosition(0,0);
+        temp_map.setSize(GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT);
         player_texture = new Texture("Character.png");
     }
 
@@ -280,7 +288,9 @@ public class MainGameScreen implements Screen {
         // Clear Screen and begin rendering
         ScreenUtils.clear(255, 255, 255, 1);
         game.batch.begin();
-        map.draw(game.batch);
+        temp_map.draw(game.batch);
+
+
 
         // For each activity, draw it on the map with its corresponding marker
         for (Activity activity : activities) {
