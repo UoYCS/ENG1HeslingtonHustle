@@ -25,6 +25,10 @@ public class EndGameScreen implements Screen {
     private HesHustle game;
 
     private int score = 0;
+    private int timesEaten;
+    private int studyCount;
+    private int daysStudied;
+    private int recCount;
 
 
     public EndGameScreen(HesHustle game, Screen MainGameScreen, int[] studyCounter, int[] recCounter, int[][] eatCounter) {
@@ -40,7 +44,7 @@ public class EndGameScreen implements Screen {
         this.eatCounter = eatCounter;
 
         font.setColor(Color.WHITE);
-        font.getData().setScale(5); // Adjust the scale as needed
+        font.getData().setScale(3); // Adjust the scale as needed
     }
 
     @Override
@@ -57,10 +61,10 @@ public class EndGameScreen implements Screen {
 
 
         // Number of times studied
-        int studyCount = Arrays.stream(studyCounter).sum();
+        studyCount = Arrays.stream(studyCounter).sum();
 
         // Number of different days the player studied
-        int daysStudied = (int) ((int) 7 - (Arrays.stream(studyCounter).filter(num -> num == 0).count()));
+        daysStudied = (int) ((int) 7 - (Arrays.stream(studyCounter).filter(num -> num == 0).count()));
 
 
         if (studyCount <= 10){
@@ -99,12 +103,19 @@ public class EndGameScreen implements Screen {
             switch (mealsEaten){
                 case 0:
                     score -= 25;
+                    break;
                 case 1:
                     score += 10;
+                    timesEaten++;
+                    break;
                 case 2:
                     score += 30;
+                    timesEaten += 2;
+                    break;
                 case 3:
                     score += 50;
+                    timesEaten += 3;
+                    break;
             }
         }
 
@@ -119,7 +130,7 @@ public class EndGameScreen implements Screen {
         // Bonus for doing it everyday
 
         // Number of times studied
-        int recCount = Arrays.stream(recCounter).sum();
+        recCount = Arrays.stream(recCounter).sum();
 
         // Number of different days the player studied
         int daysRec = (int) ((int) 7 - (Arrays.stream(recCounter).filter(num -> num == 0).count()));
@@ -145,16 +156,44 @@ public class EndGameScreen implements Screen {
         // Calculate the position to center the text
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
-        GlyphLayout layout = new GlyphLayout();
-        String text = "GAME OVER";
-        layout.setText(font, text);
+        GlyphLayout gameOver = new GlyphLayout();
+        gameOver.setText(font, "Game Over!");
 
-        float x = (screenWidth - layout.width) / 2;
-        float y = (float) (screenHeight * 0.8);
+        GlyphLayout finalScore = new GlyphLayout();
+        GlyphLayout passFail = new GlyphLayout();
+        finalScore.setText(font, "Final Score: "+score);
+
+        if (score < 100){ //value for passing to be changed later
+            passFail.setText(font, "Fail");
+        }
+        else{
+            passFail.setText(font, "Pass");
+        }
+
+        GlyphLayout summary = new GlyphLayout();
+        GlyphLayout totalStudy = new GlyphLayout();
+        GlyphLayout totalDaysStudy = new GlyphLayout();
+        GlyphLayout totalRec = new GlyphLayout();
+        GlyphLayout totalEat = new GlyphLayout();
+
+        summary.setText(font, "Total Amount of: ");
+        totalStudy.setText(font, "Times Studied = "+studyCount);
+        totalDaysStudy.setText(font, "Days Studied = "+daysStudied);
+        totalRec.setText(font, "Recreation Activities = "+recCount);
+        totalEat.setText(font, "Times Ate = "+timesEaten);
+
 
         // Draw the text on the screen
         dayBatch.begin();
-        font.draw(dayBatch, layout, x, y);
+        font.draw(dayBatch, gameOver, (screenWidth - gameOver.width) / 2, (float) (screenHeight*0.95));
+        font.draw(dayBatch, finalScore, (screenWidth - finalScore.width) / 2, (float) (screenHeight*0.8));
+        font.draw(dayBatch, passFail, (screenWidth - passFail.width) / 2, (float) (screenHeight*0.7));
+
+        font.draw(dayBatch, summary, (screenWidth - summary.width) / 2, (float) (screenHeight*0.5));
+        font.draw(dayBatch, totalStudy, (screenWidth - totalStudy.width) / 2, (float) (screenHeight*0.4));
+        font.draw(dayBatch, totalDaysStudy, (screenWidth - totalDaysStudy.width) / 2, (float) (screenHeight*0.3));
+        font.draw(dayBatch, totalRec, (screenWidth - totalRec.width) / 2, (float) (screenHeight*0.2));
+        font.draw(dayBatch, totalEat, (screenWidth - totalEat.width) / 2, (float) (screenHeight*0.1));
         dayBatch.end();
 
     }
