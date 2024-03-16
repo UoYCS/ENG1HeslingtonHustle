@@ -37,8 +37,6 @@ public class DayScreen implements Screen {
         this.recCounter = recCounter;
         this.eatCounter = eatCounter;
 
-
-
         dayBatch = new SpriteBatch();
         font = new BitmapFont();
         font.setColor(Color.WHITE);
@@ -129,10 +127,15 @@ public class DayScreen implements Screen {
         eaten.setText(font, "Times Eaten: "+countEat);
         rec.setText(font, "Recreational Activities:"+recCounter[day-1]);
 
-        font.draw(dayBatch, summary_title, (screenWidth - summary_title.width) / 2, (float) (screenHeight * 0.5));
-        font.draw(dayBatch, study, (screenWidth - 750) / 2, (float) (screenHeight * 0.35));
-        font.draw(dayBatch, eaten, (screenWidth - 750) / 2, (float) (screenHeight * 0.25));
-        font.draw(dayBatch, rec, (screenWidth - 750) / 2, (float) (screenHeight * 0.15));
+        font.draw(dayBatch, summary_title, (screenWidth - 950) / 2, (float) (screenHeight * 0.5));
+        font.draw(dayBatch, study, (screenWidth - 950) / 2, (float) (screenHeight * 0.35));
+        font.draw(dayBatch, eaten, (screenWidth - 950) / 2, (float) (screenHeight * 0.25));
+        font.draw(dayBatch, rec, (screenWidth - 950) / 2, (float) (screenHeight * 0.15));
+
+        GlyphLayout cont = new GlyphLayout();
+        cont.setText(font, "Press F \nto Continue");
+
+        font.draw(dayBatch, cont, screenWidth - cont.width - 25, (float) (screenHeight * 0.35));
 
         dayBatch.end();
 
