@@ -38,7 +38,6 @@ public class MainGameScreen implements Screen {
 
     // Game assets
     Texture player_texture;    // Player Texture
-    Sprite temp_map;     // Map Background Sprite
 
     private TiledMap map;
 
@@ -174,9 +173,6 @@ public class MainGameScreen implements Screen {
      */
     @Override
     public void show() {
-        temp_map = new Sprite(new Texture("temp_map.png"));
-        temp_map.setPosition(0,0);
-        temp_map.setSize(GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT);
         player_texture = new Texture("Character.png");
     }
 
@@ -214,7 +210,7 @@ public class MainGameScreen implements Screen {
             float y_movement = vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
             float x_movement = horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
 
-            if (!tileBlocked((int) ((int) player_x + x_movement), (int) ((int) player_y + y_movement))){
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y + (player_texture.getHeight()/2) + y_movement))){
                 player_y += y_movement;
                 player_x += x_movement;
             }
@@ -223,7 +219,7 @@ public class MainGameScreen implements Screen {
             float y_movement = (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
             float x_movement = (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
 
-            if (!tileBlocked((int) ((int) player_x + x_movement), (int) ((int) player_y + y_movement))){
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y + (player_texture.getHeight()/2) + y_movement))){
                 player_y += y_movement;
                 player_x += x_movement;
             }
