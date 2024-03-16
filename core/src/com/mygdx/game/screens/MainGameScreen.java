@@ -8,7 +8,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 
@@ -16,7 +17,10 @@ import com.mygdx.game.HesHustle;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.sun.org.apache.xpath.internal.operations.Or;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +42,9 @@ public class MainGameScreen implements Screen {
 
     private TiledMap map;
 
+    private OrthogonalTiledMapRenderer mapRenderer;
+
+    private static final int TILE_SIZE = 32;
 
 
 
@@ -48,8 +55,10 @@ public class MainGameScreen implements Screen {
     TextureRegion sleepMarker;
 
     // Game world dimensions
-    final float GAME_WORLD_WIDTH = 1024;
-    final float GAME_WORLD_HEIGHT = 576;
+    final float GAME_WORLD_WIDTH = 1760;
+    final float GAME_WORLD_HEIGHT = 1440;
+
+
 
     // Variables for player position
     // *Temporarily initialised to center of map...will change.
@@ -57,6 +66,7 @@ public class MainGameScreen implements Screen {
     float player_y = GAME_WORLD_HEIGHT / 2;
 
     int energy = 100;
+
 
     // Objects used for avatar animation and other textures
     Animation<TextureRegion> walkDownAnimation;
@@ -68,6 +78,7 @@ public class MainGameScreen implements Screen {
 
     // A variable for tracking elapsed time for the animation
     float stateTime;
+
 
     // Minutes from 8am
     // Max Value = 960 @ 12am.
@@ -101,8 +112,14 @@ public class MainGameScreen implements Screen {
     public MainGameScreen (HesHustle game){
         this.game = game;
 
+        TmxMapLoader mapLoader = new TmxMapLoader();
+        map = mapLoader.load("map/GameWorld.tmx");
+
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
+
+
         // Setting up the camera with initial position and size
-        this.camera = new OrthographicCamera((float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
+        this.camera = new OrthographicCamera((float) ((float) Gdx.graphics.getWidth() * 0.8), (float) ((float) Gdx.graphics.getHeight()* 0.8));
         this.camera.position.set(GAME_WORLD_WIDTH / 2, GAME_WORLD_HEIGHT / 2, 0);
         this.camera.update();
 
@@ -194,11 +211,22 @@ public class MainGameScreen implements Screen {
             float horizontal_normalised = horizontal / length;
             float vertical_normalised = vertical / length;
 
-            player_y += vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
-            player_x += horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
+            float y_movement = vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
+            float x_movement = horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
+
+            if (!tileBlocked((int) ((int) player_x + x_movement), (int) ((int) player_y + y_movement))){
+                player_y += y_movement;
+                player_x += x_movement;
+            }
+
         } else {
-            player_y += (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
-            player_x += (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
+            float y_movement = (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
+            float x_movement = (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
+
+            if (!tileBlocked((int) ((int) player_x + x_movement), (int) ((int) player_y + y_movement))){
+                player_y += y_movement;
+                player_x += x_movement;
+            }
         }
 
 
@@ -210,6 +238,7 @@ public class MainGameScreen implements Screen {
         player_y = Math.max(0,
                             Math.min(player_y,
                                      GAME_WORLD_HEIGHT - player_texture.getHeight()));
+
 
 
         // Bounds checking to keep camera within map boundaries
@@ -288,9 +317,9 @@ public class MainGameScreen implements Screen {
         // Clear Screen and begin rendering
         ScreenUtils.clear(255, 255, 255, 1);
         game.batch.begin();
-        temp_map.draw(game.batch);
 
-
+        mapRenderer.setView(game.camera);
+        mapRenderer.render();
 
         // For each activity, draw it on the map with its corresponding marker
         for (Activity activity : activities) {
@@ -308,35 +337,39 @@ public class MainGameScreen implements Screen {
         // Draw player based on previous logic and user input with the corresponding animation
 
         // if the player is moving right, play the walking up animation
-
         if (horizontal == 1){
             spriteAnimate(walkRightAnimation, player_x, player_y);
         }
 
         // if the player is moving left, play the walking left animation
-
         else if (horizontal == -1){
             spriteAnimate(walkLeftAnimation, player_x, player_y);
         }
 
         // if the player is moving down, play the walking down animation
-
         else if (vertical == -1){
             spriteAnimate(walkDownAnimation, player_x, player_y);
         }
 
         // if the player is moving up, play the walking up animation
-
         else if (vertical == 1){
             spriteAnimate(walkUpAnimation, player_x, player_y);
         }
 
         // if the player isn't moving, display the idle character model
-
         else {
             game.batch.draw(player_texture, player_x, player_y);
         }
 
+        // Iterate through the layers to find the index of the specific layer
+        int specificLayerIndex = -1; // Initialize with a value that indicates the layer was not found
+        for (int i = 0; i < map.getLayers().getCount(); i++) {
+            if (map.getLayers().get(i).getName().equals("Trees Fore")) {
+                specificLayerIndex = i;
+                break; // Stop searching once the layer is found
+            }
+        }
+        mapRenderer.render(new int[] {specificLayerIndex});
 
 
         // End rendering for frame
@@ -350,6 +383,24 @@ public class MainGameScreen implements Screen {
         TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
         game.batch.draw(currentFrame, player_x, player_y);
     }
+
+
+    private boolean tileBlocked(int x, int y){
+
+
+        for(MapLayer layer : map.getLayers()){
+            TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;
+
+            TiledMapTileLayer.Cell cell = tileLayer.getCell(x / TILE_SIZE, y / TILE_SIZE);
+            if (cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey("blocked")) {
+                return true;
+            }
+        }
+    return false;
+    }
+
+
+
 
 
     /**
@@ -399,7 +450,10 @@ public class MainGameScreen implements Screen {
     public void dispose() {
         player_texture.dispose();
         spriteSheet.dispose();
+        map.dispose();
+        mapRenderer.dispose();
     }
+
 }
 
 
