@@ -7,7 +7,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -20,7 +19,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.sun.org.apache.xpath.internal.operations.Or;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,7 +111,6 @@ public class MainGameScreen implements Screen {
 
         TmxMapLoader mapLoader = new TmxMapLoader();
         map = mapLoader.load("map/GameWorld.tmx");
-
         mapRenderer = new OrthogonalTiledMapRenderer(map);
 
 
@@ -210,7 +207,7 @@ public class MainGameScreen implements Screen {
             float y_movement = vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
             float x_movement = horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
 
-            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y + (player_texture.getHeight()/2) + y_movement))){
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y + y_movement))){
                 player_y += y_movement;
                 player_x += x_movement;
             }
@@ -219,7 +216,7 @@ public class MainGameScreen implements Screen {
             float y_movement = (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
             float x_movement = (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
 
-            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y + (player_texture.getHeight()/2) + y_movement))){
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y + y_movement))){
                 player_y += y_movement;
                 player_x += x_movement;
             }
@@ -314,21 +311,15 @@ public class MainGameScreen implements Screen {
         ScreenUtils.clear(255, 255, 255, 1);
         game.batch.begin();
 
-        mapRenderer.setView(game.camera);
-        mapRenderer.render();
-
-        // For each activity, draw it on the map with its corresponding marker
-        for (Activity activity : activities) {
-            game.batch.draw(activity.getMarker(), activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2), activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
-        }
-
 
 
         // Update the position of the game camera using previous logic
         game.camera.position.set(camera_x, camera_y, 0);
         game.camera.update();
         game.batch.setProjectionMatrix(game.camera.combined);
-      
+
+        mapRenderer.setView(game.camera);
+        mapRenderer.render(new int[] {0,1,2,3,8});
 
         // Draw player based on previous logic and user input with the corresponding animation
 
@@ -357,15 +348,12 @@ public class MainGameScreen implements Screen {
             game.batch.draw(player_texture, player_x, player_y);
         }
 
-        // Iterate through the layers to find the index of the specific layer
-        int specificLayerIndex = -1; // Initialize with a value that indicates the layer was not found
-        for (int i = 0; i < map.getLayers().getCount(); i++) {
-            if (map.getLayers().get(i).getName().equals("Trees Fore")) {
-                specificLayerIndex = i;
-                break; // Stop searching once the layer is found
-            }
+        mapRenderer.render(new int[] {4,5,6,7});
+
+        // For each activity, draw it on the map with its corresponding marker
+        for (Activity activity : activities) {
+            game.batch.draw(activity.getMarker(), activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2), activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
         }
-        mapRenderer.render(new int[] {specificLayerIndex});
 
 
         // End rendering for frame
