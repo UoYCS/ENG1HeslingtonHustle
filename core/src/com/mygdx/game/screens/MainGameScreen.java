@@ -59,6 +59,9 @@ public class MainGameScreen implements Screen {
     float player_x = GAME_WORLD_WIDTH / 2;
     float player_y = GAME_WORLD_HEIGHT / 2;
 
+    float camera_x = player_x;
+    float camera_y = player_y;
+
     int energy = 100;
 
 
@@ -191,132 +194,20 @@ public class MainGameScreen implements Screen {
         int left  = Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT) ? 1 : 0;
         int right = Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT) ? 1 : 0;
 
-
         int horizontal = (right - left);
         int vertical = (up - down);
 
-
-        // Checking if player is moving diagonally and if so to normalise speed
-
-        // This is important as without normalisation,
-        // the player would be faster when moving diagonally due to Pythagorean theorem
-
-        if (horizontal != 0 && vertical != 0) {
-            float length = (float) Math.sqrt(Math.pow(horizontal, 2) + Math.pow(vertical, 2));
-            float horizontal_normalised = horizontal / length;
-            float vertical_normalised = vertical / length;
-
-            float y_movement = vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
-            float x_movement = horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
-
-            if (!tileBlocked((int) player_x, (int) ((int) player_y + y_movement))){
-                player_y += y_movement;
-            }
-
-            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) player_y)){
-                player_x += x_movement;
-            }
-
-
-        } else {
-            float y_movement = (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
-            float x_movement = (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
-
-            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y-1 + y_movement))){
-                player_y += y_movement;
-                player_x += x_movement;
-            }
-        }
-
-
-        //  Bounds checking to keep the player within map boundaries
-        player_x = Math.max(0,
-                            Math.min(player_x,
-                                     GAME_WORLD_WIDTH - player_texture.getWidth()));
-
-        player_y = Math.max(0,
-                            Math.min(player_y,
-                                     GAME_WORLD_HEIGHT - player_texture.getHeight()));
-
-
-
-        // Bounds checking to keep camera within map boundaries
-        float camera_x =
-                Math.min(
-                        Math.max(player_x + (float) player_texture.getWidth() / 2, camera.viewportWidth / 2),
-                        GAME_WORLD_WIDTH - camera.viewportWidth / 2);
-
-        float camera_y =
-                Math.min(
-                        Math.max(player_y + (float) player_texture.getWidth() / 2, camera.viewportHeight / 2),
-                        GAME_WORLD_HEIGHT - camera.viewportHeight / 2);
-
+        handleMovement(horizontal, vertical);
 
         // Allow for user interaction with activities.
-        // When Interact button is pressed, check if the player is close to an activity, and process logic accordingly.
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            for (Activity activity : activities) {
-                if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
-
-                    if (Objects.equals(activity.getType(), "sleep")) {
-                        System.out.println("Day completed:" + day);
-                        System.out.println(Arrays.toString(studyCounter));
-                        System.out.println(Arrays.toString(eatCounter[day]));
-                        System.out.println(Arrays.toString(recCounter));
-
-                        stopGameTimer();
-                        day += 1;
-                        energy = 100;
-                        time = 0;
-                        mealsEaten = 0;
-                        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
-                    }
-
-                    else if (Objects.equals(activity.getType(), "eat")) {
-                        if (mealsEaten == 3){
-                            System.out.println("Already eaten 3 times today");
-                        }
-                        else {
-                            eatCounter[day][mealsEaten] = time;
-                            mealsEaten++;
-                            this.energy += (int) activity.getEnergyUsage();
-                            this.time += (int) activity.getTimeUsage();
-                        }
-                    }
-
-                    else if (this.energy + activity.getEnergyUsage() >= 0) {
-                        this.energy += (int) activity.getEnergyUsage();
-                        this.time += (int) activity.getTimeUsage();
-
-                        if (Objects.equals(activity.getType(), "study")) {
-                            studyCounter[day]++;
-                        }
-
-                        if (Objects.equals(activity.getType(), "rec")) {
-                            recCounter[day]++;
-                        }
-
-                    } else {
-                        System.out.println("Not enough energy to perform activity");
-                        }
-
-                    if (this.energy >= 100) {
-                        this.energy = 100;
-                    }
-
-                }
-            }
+            handleActivityInteraction();
         }
-
-
-
-
 
 
         // Clear Screen and begin rendering
         ScreenUtils.clear(255, 255, 255, 1);
         game.batch.begin();
-
 
 
         // Update the position of the game camera using previous logic
@@ -359,12 +250,118 @@ public class MainGameScreen implements Screen {
             game.batch.draw(player_texture, player_x, player_y);
         }
 
-        System.out.println(timer + " " + time);
 
         // End rendering for frame
         game.batch.end();
     }
 
+
+    private void handleMovement(int horizontal, int vertical) {
+
+        // Checking if player is moving diagonally and if so to normalise speed
+
+        // This is important as without normalisation,
+        // the player would be faster when moving diagonally due to Pythagorean theorem
+
+        if (horizontal != 0 && vertical != 0) {
+            float length = (float) Math.sqrt(Math.pow(horizontal, 2) + Math.pow(vertical, 2));
+            float horizontal_normalised = horizontal / length;
+            float vertical_normalised = vertical / length;
+
+            float y_movement = vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
+            float x_movement = horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
+
+            if (!tileBlocked((int) player_x, (int) ((int) player_y + y_movement))){
+                player_y += y_movement;
+            }
+
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) player_y)){
+                player_x += x_movement;
+            }
+
+        } else {
+            float y_movement = (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
+            float x_movement = (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
+
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y-1 + y_movement))){
+                player_y += y_movement;
+                player_x += x_movement;
+            }
+        }
+
+
+        //  Bounds checking to keep the player within map boundaries
+        player_x = Math.max(0,
+                Math.min(player_x,
+                        GAME_WORLD_WIDTH - player_texture.getWidth()));
+
+        player_y = Math.max(0,
+                Math.min(player_y,
+                        GAME_WORLD_HEIGHT - player_texture.getHeight()));
+
+        // Bounds checking to keep camera within map boundaries
+        camera_x = Math.min(
+                Math.max(player_x + (float) player_texture.getWidth() / 2, camera.viewportWidth / 2),
+                GAME_WORLD_WIDTH - camera.viewportWidth / 2);
+
+        camera_y = Math.min(
+                Math.max(player_y + (float) player_texture.getWidth() / 2, camera.viewportHeight / 2),
+                GAME_WORLD_HEIGHT - camera.viewportHeight / 2);
+    }
+
+    private void handleActivityInteraction(){
+        for (Activity activity : activities) {
+            if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
+
+                if (Objects.equals(activity.getType(), "sleep")) {
+                    System.out.println("Day completed:" + day);
+                    System.out.println(Arrays.toString(studyCounter));
+                    System.out.println(Arrays.toString(eatCounter[day]));
+                    System.out.println(Arrays.toString(recCounter));
+
+                    stopGameTimer();
+                    day += 1;
+                    energy = 100;
+                    time = 0;
+                    mealsEaten = 0;
+                    ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
+                }
+
+                else if (Objects.equals(activity.getType(), "eat")) {
+                    if (mealsEaten == 3){
+                        System.out.println("Already eaten 3 times today");
+                    }
+                    else {
+                        eatCounter[day][mealsEaten] = time;
+                        mealsEaten++;
+                        this.energy += (int) activity.getEnergyUsage();
+                        this.time += (int) activity.getTimeUsage();
+                    }
+                }
+
+                else if (this.energy + activity.getEnergyUsage() >= 0) {
+                    this.energy += (int) activity.getEnergyUsage();
+                    this.time += (int) activity.getTimeUsage();
+
+                    if (Objects.equals(activity.getType(), "study")) {
+                        studyCounter[day]++;
+                    }
+
+                    if (Objects.equals(activity.getType(), "rec")) {
+                        recCounter[day]++;
+                    }
+
+                } else {
+                    System.out.println("Not enough energy to perform activity");
+                }
+
+                if (this.energy >= 100) {
+                    this.energy = 100;
+                }
+
+            }
+        }
+    }
 
     // method for displaying the avatar animation to the screen
     public void spriteAnimate(Animation<TextureRegion> animation, float player_x, float player_y){
@@ -372,7 +369,6 @@ public class MainGameScreen implements Screen {
         TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
         game.batch.draw(currentFrame, player_x, player_y);
     }
-
 
     private boolean tileBlocked(int x, int y){
         for(MapLayer layer : map.getLayers()){
@@ -385,8 +381,6 @@ public class MainGameScreen implements Screen {
         }
     return false;
     }
-
-
 
     public void startGameTimer() {
         stopGameTimer();
