@@ -233,7 +233,7 @@ public class MainGameScreen implements Screen {
 
         mapRenderer.setView(game.camera);
         mapRenderer.render();
-        
+
 
         for (Activity activity : activities) {
             // For each activity, draw it on the map with its corresponding marker
@@ -298,7 +298,7 @@ public class MainGameScreen implements Screen {
             float y_movement = vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
             float x_movement = horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
 
-            if (!tileBlocked((int) player_x, (int) ((int) player_y + y_movement))){
+            if (!tileBlocked((int) player_x + (player_texture.getWidth()/2), (int) ((int) player_y + y_movement))){
                 player_y += y_movement;
             }
 

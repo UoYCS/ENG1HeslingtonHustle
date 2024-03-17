@@ -89,9 +89,6 @@
   <image width="32" height="32" source="Trees/tile110.png"/>
  </tile>
  <tile id="111">
-  <properties>
-   <property name="blocked" type="bool" value="true"/>
-  </properties>
   <image width="32" height="32" source="Trees/tile111.png"/>
  </tile>
  <tile id="112">
@@ -99,7 +96,7 @@
  </tile>
  <tile id="113">
   <properties>
-   <property name="blocked" type="bool" value="true"/>
+   <property name="blocked" type="bool" value="false"/>
   </properties>
   <image width="32" height="32" source="Trees/tile599.png"/>
  </tile>
