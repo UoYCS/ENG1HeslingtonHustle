@@ -42,10 +42,10 @@ public class MainGameScreen implements Screen {
     private static final int TILE_SIZE = 32;
 
 
-    Texture studyPopup;
-    Texture eatPopup;
-    Texture recPopup;
-    Texture sleepPopup;
+    int studyPopupIndex;
+    int eatPopupIndex;
+    int recPopupIndex;
+    int sleepPopupIndex;
 
 
     // The textures for the activity markers
@@ -79,6 +79,8 @@ public class MainGameScreen implements Screen {
     Texture spriteSheet = new Texture(Gdx.files.internal("SpriteSheet.png"));
     Texture markersPNG = new Texture(Gdx.files.internal("Markers.png"));
 
+    Texture popupsPNG = new Texture(Gdx.files.internal("InteractionPopups.png"));
+
     // A variable for tracking elapsed time for the animation
     float stateTime;
 
@@ -105,6 +107,7 @@ public class MainGameScreen implements Screen {
 
     HesHustle game;
 
+    TextureRegion[][] popups;
 
     // Initialise an ArrayList to store details about the activities players can interact with
     private final List<Activity> activities = new ArrayList<>();
@@ -168,16 +171,18 @@ public class MainGameScreen implements Screen {
         sleepMarker = tmpMarkers[0][3];
 
 
-        studyPopup = new Texture("studyPopup.png");
-        sleepPopup = new Texture("sleepPopup.png");
-        eatPopup = new Texture("eatPopup.png");
-        recPopup = new Texture("recPopup.png");
+        popups = TextureRegion.split(popupsPNG, popupsPNG.getWidth() / 2, popupsPNG.getHeight() / 4);
+
+        studyPopupIndex = 0;
+        recPopupIndex = 1;
+        sleepPopupIndex = 2;
+        eatPopupIndex = 3;
 
         // Create Activity instances and add them to the activities ArrayList
-        activities.add(new Activity("study", 600, 400, -10, 20, studyMarker, studyPopup));
-        activities.add(new Activity("sleep", 600, 300, 20, 20, sleepMarker, sleepPopup));
-        activities.add(new Activity("rec", 500, 400, -20, 20, recreationMarker, recPopup));
-        activities.add(new Activity("eat", 500, 300, 10, 20, eatMarker, eatPopup));
+        activities.add(new Activity("study", 600, 600, -10, 20, studyMarker, studyPopupIndex));
+        activities.add(new Activity("sleep", 600, 500, 20, 20, sleepMarker, sleepPopupIndex));
+        activities.add(new Activity("rec", 500, 600, -20, 20, recreationMarker, recPopupIndex));
+        activities.add(new Activity("eat", 500, 500, 10, 20, eatMarker, eatPopupIndex));
 
 
         
@@ -214,9 +219,7 @@ public class MainGameScreen implements Screen {
 
         handleMovement(horizontal, vertical);
 
-        // Allow for user interaction with activities.
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            handleActivityInteraction();}
+
 
         if (time == 960){
             newDay();
@@ -244,18 +247,13 @@ public class MainGameScreen implements Screen {
 
             // If the player is close enough, display the activity popup
             if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() / 2), player_y + ((float) player_texture.getHeight() / 2))) {
-                if (Objects.equals(activity.getType(), "eat") || Objects.equals(activity.getType(), "sleep")){
-                    game.batch.draw(activity.getPopup(),
-                                activity.getX_location() - ((float) activity.getMarker().getRegionWidth() / 2),
-                                activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
-                } else{
-                    game.batch.draw(activity.getPopup(),
-                            (float) (activity.getX_location() - ((float) activity.getMarker().getRegionWidth() * 1.8)),
-                            activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
-                }
+                drawInteractionPopup(activity, 0);
             }
         }
 
+        // Allow for user interaction with activities.
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            handleActivityInteraction();}
 
 
         // Draw player based on previous logic and user input with the corresponding animation
@@ -280,6 +278,18 @@ public class MainGameScreen implements Screen {
 
         // End rendering for frame
         game.batch.end();
+    }
+
+    private void drawInteractionPopup(Activity activity, int mode){
+        if (Objects.equals(activity.getType(), "eat") || Objects.equals(activity.getType(), "sleep")){
+            game.batch.draw(popups[activity.getPopupIndex()][mode],
+                    activity.getX_location() - ((float) activity.getMarker().getRegionWidth() / 2),
+                    activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
+        } else{
+            game.batch.draw(popups[activity.getPopupIndex()][mode],
+                    (float) (activity.getX_location() - ((float) activity.getMarker().getRegionWidth() * 1.8)),
+                    activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
+        }
     }
 
 
@@ -339,6 +349,7 @@ public class MainGameScreen implements Screen {
     private void handleActivityInteraction(){
         for (Activity activity : activities) {
             if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
+                drawInteractionPopup(activity, 1);
 
                 if (Objects.equals(activity.getType(), "sleep")) {
                     newDay();
@@ -495,16 +506,16 @@ class Activity {
     private final float energyUsage;
     private final float timeUsage;
     private final TextureRegion marker;
-    private final Texture popup;
+    private final int popup;
 
-    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage, TextureRegion marker, Texture popup) {
+    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage, TextureRegion marker, int popupIndex) {
         this.type = type;
         this.x_location = x_location;
         this.y_location = y_location;
         this.energyUsage = energyUsage;
         this.timeUsage = timeUsage;
         this.marker = marker;
-        this.popup = popup;
+        this.popup = popupIndex;
     }
 
     public int getX_location() {
@@ -529,7 +540,7 @@ class Activity {
 
     public TextureRegion getMarker() { return marker; }
 
-    public Texture getPopup() { return popup; }
+    public int getPopupIndex() { return popup; }
 
 
     /**
