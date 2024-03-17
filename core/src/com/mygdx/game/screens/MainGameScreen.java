@@ -53,7 +53,7 @@ public class MainGameScreen implements Screen {
 
     // Game world dimensions
     final float GAME_WORLD_WIDTH = 1760;
-    final float GAME_WORLD_HEIGHT = 1440;
+    final float GAME_WORLD_HEIGHT = 1280;
 
 
 
@@ -207,16 +207,20 @@ public class MainGameScreen implements Screen {
             float y_movement = vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
             float x_movement = horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
 
-            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y + y_movement))){
+            if (!tileBlocked((int) player_x, (int) ((int) player_y + y_movement))){
                 player_y += y_movement;
+            }
+
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) player_y)){
                 player_x += x_movement;
             }
+
 
         } else {
             float y_movement = (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
             float x_movement = (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
 
-            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y + y_movement))){
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y-1 + y_movement))){
                 player_y += y_movement;
                 player_x += x_movement;
             }
@@ -319,7 +323,12 @@ public class MainGameScreen implements Screen {
         game.batch.setProjectionMatrix(game.camera.combined);
 
         mapRenderer.setView(game.camera);
-        mapRenderer.render(new int[] {0,1,2,3,8});
+        mapRenderer.render();
+
+        // For each activity, draw it on the map with its corresponding marker
+        for (Activity activity : activities) {
+            game.batch.draw(activity.getMarker(), activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2), activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
+        }
 
         // Draw player based on previous logic and user input with the corresponding animation
 
@@ -348,12 +357,8 @@ public class MainGameScreen implements Screen {
             game.batch.draw(player_texture, player_x, player_y);
         }
 
-        mapRenderer.render(new int[] {4,5,6,7});
 
-        // For each activity, draw it on the map with its corresponding marker
-        for (Activity activity : activities) {
-            game.batch.draw(activity.getMarker(), activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2), activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
-        }
+
 
 
         // End rendering for frame
