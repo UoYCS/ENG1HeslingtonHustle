@@ -20,10 +20,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * MainGameScreen class represents the game
@@ -80,6 +77,9 @@ public class MainGameScreen implements Screen {
     // Minutes from 8am
     // Max Value = 960 @ 12am.
     int time = 0;
+
+    private Timer timer;
+    private int timeInterval = 1000;
 
     int day = 0;
     final int gameDaysLength = 7;
@@ -171,6 +171,8 @@ public class MainGameScreen implements Screen {
     @Override
     public void show() {
         player_texture = new Texture("Character.png");
+        startGameTimer();
+
     }
 
     /**
@@ -262,11 +264,11 @@ public class MainGameScreen implements Screen {
                         System.out.println(Arrays.toString(eatCounter[day]));
                         System.out.println(Arrays.toString(recCounter));
 
+                        stopGameTimer();
                         day += 1;
                         energy = 100;
                         time = 0;
                         mealsEaten = 0;
-
                         ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
                     }
 
@@ -357,9 +359,7 @@ public class MainGameScreen implements Screen {
             game.batch.draw(player_texture, player_x, player_y);
         }
 
-
-
-
+        System.out.println(timer + " " + time);
 
         // End rendering for frame
         game.batch.end();
@@ -375,8 +375,6 @@ public class MainGameScreen implements Screen {
 
 
     private boolean tileBlocked(int x, int y){
-
-
         for(MapLayer layer : map.getLayers()){
             TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;
 
@@ -390,6 +388,24 @@ public class MainGameScreen implements Screen {
 
 
 
+    public void startGameTimer() {
+        stopGameTimer();
+        timer = new Timer();
+        time = 0;
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                time += 10;
+            }
+        }, 0, timeInterval);
+    }
+
+    public void stopGameTimer() {
+        if(timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
 
 
     /**
@@ -441,6 +457,7 @@ public class MainGameScreen implements Screen {
         spriteSheet.dispose();
         map.dispose();
         mapRenderer.dispose();
+        stopGameTimer();
     }
 
 }
