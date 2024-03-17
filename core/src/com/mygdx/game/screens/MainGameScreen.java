@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import org.w3c.dom.Text;
 
 import java.util.*;
 
@@ -40,6 +41,11 @@ public class MainGameScreen implements Screen {
 
     private static final int TILE_SIZE = 32;
 
+
+    Texture studyPopup;
+    Texture eatPopup;
+    Texture recPopup;
+    Texture sleepPopup;
 
 
     // The textures for the activity markers
@@ -142,6 +148,9 @@ public class MainGameScreen implements Screen {
             walkLeftFrames[i] = tmp[3][i];
         }
 
+
+
+
         walkDownAnimation = new Animation<TextureRegion>(0.125f, walkDownFrames);
         walkRightAnimation = new Animation<TextureRegion>(0.125f, walkRightFrames);
         walkUpAnimation = new Animation<TextureRegion>(0.125f, walkUpFrames);
@@ -158,11 +167,17 @@ public class MainGameScreen implements Screen {
         studyMarker = tmpMarkers[0][2];
         sleepMarker = tmpMarkers[0][3];
 
+
+        studyPopup = new Texture("studyPopup.png");
+        sleepPopup = new Texture("sleepPopup.png");
+        eatPopup = new Texture("eatPopup.png");
+        recPopup = new Texture("recPopup.png");
+
         // Create Activity instances and add them to the activities ArrayList
-        activities.add(new Activity("study", 600, 400, -10, 20, studyMarker));
-        activities.add(new Activity("sleep", 600, 300, 20, 20, sleepMarker));
-        activities.add(new Activity("rec", 500, 400, -20, 20, recreationMarker));
-        activities.add(new Activity("eat", 500, 300, 10, 20, eatMarker));
+        activities.add(new Activity("study", 600, 400, -10, 20, studyMarker, studyPopup));
+        activities.add(new Activity("sleep", 600, 300, 20, 20, sleepMarker, sleepPopup));
+        activities.add(new Activity("rec", 500, 400, -20, 20, recreationMarker, recPopup));
+        activities.add(new Activity("eat", 500, 300, 10, 20, eatMarker, eatPopup));
 
 
         
@@ -201,14 +216,15 @@ public class MainGameScreen implements Screen {
 
         // Allow for user interaction with activities.
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            handleActivityInteraction();
-        }
+            handleActivityInteraction();}
 
+        if (time == 960){
+            newDay();
+        }
 
         // Clear Screen and begin rendering
         ScreenUtils.clear(255, 255, 255, 1);
         game.batch.begin();
-
 
         // Update the position of the game camera using previous logic
         game.camera.position.set(camera_x, camera_y, 0);
@@ -217,38 +233,49 @@ public class MainGameScreen implements Screen {
 
         mapRenderer.setView(game.camera);
         mapRenderer.render();
+        
 
-        // For each activity, draw it on the map with its corresponding marker
         for (Activity activity : activities) {
-            game.batch.draw(activity.getMarker(), activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2), activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
+            // For each activity, draw it on the map with its corresponding marker
+            game.batch.draw(activity.getMarker(),
+                    activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2),
+                    activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
+
+
+            // If the player is close enough, display the activity popup
+            if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() / 2), player_y + ((float) player_texture.getHeight() / 2))) {
+                if (Objects.equals(activity.getType(), "eat") || Objects.equals(activity.getType(), "sleep")){
+                    game.batch.draw(activity.getPopup(),
+                                activity.getX_location() - ((float) activity.getMarker().getRegionWidth() / 2),
+                                activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
+                } else{
+                    game.batch.draw(activity.getPopup(),
+                            (float) (activity.getX_location() - ((float) activity.getMarker().getRegionWidth() * 1.8)),
+                            activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
+                }
+            }
         }
+
+
 
         // Draw player based on previous logic and user input with the corresponding animation
+        // Play correct walking animation based on player direction
 
-        // if the player is moving right, play the walking up animation
         if (horizontal == 1){
-            spriteAnimate(walkRightAnimation, player_x, player_y);
-        }
+            spriteAnimate(walkRightAnimation, player_x, player_y);}
 
-        // if the player is moving left, play the walking left animation
         else if (horizontal == -1){
-            spriteAnimate(walkLeftAnimation, player_x, player_y);
-        }
+            spriteAnimate(walkLeftAnimation, player_x, player_y);}
 
-        // if the player is moving down, play the walking down animation
         else if (vertical == -1){
-            spriteAnimate(walkDownAnimation, player_x, player_y);
-        }
+            spriteAnimate(walkDownAnimation, player_x, player_y);}
 
-        // if the player is moving up, play the walking up animation
         else if (vertical == 1){
-            spriteAnimate(walkUpAnimation, player_x, player_y);
-        }
+            spriteAnimate(walkUpAnimation, player_x, player_y);}
 
-        // if the player isn't moving, display the idle character model
+        // Show the idle character model if the player isn't moving
         else {
-            game.batch.draw(player_texture, player_x, player_y);
-        }
+            game.batch.draw(player_texture, player_x, player_y);}
 
 
         // End rendering for frame
@@ -261,7 +288,7 @@ public class MainGameScreen implements Screen {
         // Checking if player is moving diagonally and if so to normalise speed
 
         // This is important as without normalisation,
-        // the player would be faster when moving diagonally due to Pythagorean theorem
+        // the player would be faster when moving diagonally due to Pytha   gorean theorem
 
         if (horizontal != 0 && vertical != 0) {
             float length = (float) Math.sqrt(Math.pow(horizontal, 2) + Math.pow(vertical, 2));
@@ -314,17 +341,7 @@ public class MainGameScreen implements Screen {
             if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
 
                 if (Objects.equals(activity.getType(), "sleep")) {
-                    System.out.println("Day completed:" + day);
-                    System.out.println(Arrays.toString(studyCounter));
-                    System.out.println(Arrays.toString(eatCounter[day]));
-                    System.out.println(Arrays.toString(recCounter));
-
-                    stopGameTimer();
-                    day += 1;
-                    energy = 100;
-                    time = 0;
-                    mealsEaten = 0;
-                    ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
+                    newDay();
                 }
 
                 else if (Objects.equals(activity.getType(), "eat")) {
@@ -362,6 +379,17 @@ public class MainGameScreen implements Screen {
             }
         }
     }
+
+
+    private void newDay(){
+        stopGameTimer();
+        day += 1;
+        energy = 100;
+        time = 0;
+        mealsEaten = 0;
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
+    }
+
 
     // method for displaying the avatar animation to the screen
     public void spriteAnimate(Animation<TextureRegion> animation, float player_x, float player_y){
@@ -467,14 +495,16 @@ class Activity {
     private final float energyUsage;
     private final float timeUsage;
     private final TextureRegion marker;
+    private final Texture popup;
 
-    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage, TextureRegion marker) {
+    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage, TextureRegion marker, Texture popup) {
         this.type = type;
         this.x_location = x_location;
         this.y_location = y_location;
         this.energyUsage = energyUsage;
         this.timeUsage = timeUsage;
         this.marker = marker;
+        this.popup = popup;
     }
 
     public int getX_location() {
@@ -498,6 +528,9 @@ class Activity {
     }
 
     public TextureRegion getMarker() { return marker; }
+
+    public Texture getPopup() { return popup; }
+
 
     /**
      * Check if the player is close enough to interact with the activity.
