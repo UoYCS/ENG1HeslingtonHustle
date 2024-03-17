@@ -5,10 +5,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mygdx.game.HesHustle;
 
 import java.util.Arrays;
@@ -23,6 +25,7 @@ public class EndGameScreen implements Screen {
     private BitmapFont font;
     private SpriteBatch dayBatch;
     private HesHustle game;
+    private Texture background;
 
     private int score = 0;
     private int timesEaten;
@@ -43,8 +46,10 @@ public class EndGameScreen implements Screen {
         this.recCounter = recCounter;
         this.eatCounter = eatCounter;
 
-        font.setColor(Color.WHITE);
-        font.getData().setScale(3); // Adjust the scale as needed
+        font.setColor(Color.BLACK);
+        font.getData().setScale(2); // Adjust the scale as needed
+
+        background = new Texture("endScreenBackground.png");
     }
 
     @Override
@@ -182,10 +187,12 @@ public class EndGameScreen implements Screen {
         totalRec.setText(font, "Recreation Activities = "+recCount);
         totalEat.setText(font, "Times Ate = "+timesEaten);
 
+        //Draws the background
+        dayBatch.begin();
+        dayBatch.draw(background, 0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         // Draw the text on the screen
-        dayBatch.begin();
-        font.draw(dayBatch, gameOver, (screenWidth - gameOver.width) / 2, (float) (screenHeight*0.95));
+        font.draw(dayBatch, gameOver, (screenWidth - gameOver.width) / 2, (float) (screenHeight*0.85));
         font.draw(dayBatch, finalScore, (screenWidth - finalScore.width) / 2, (float) (screenHeight*0.8));
         font.draw(dayBatch, passFail, (screenWidth - passFail.width) / 2, (float) (screenHeight*0.7));
 
