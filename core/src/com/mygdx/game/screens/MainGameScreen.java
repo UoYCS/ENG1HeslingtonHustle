@@ -255,9 +255,7 @@ public class MainGameScreen implements Screen {
             }
         }
 
-        // Allow for user interaction with activities.
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            handleActivityInteraction();}
+
 
 
         // Draw player based on previous logic and user input with the corresponding animation
@@ -283,7 +281,26 @@ public class MainGameScreen implements Screen {
             System.out.println(camera_x + " " + camera_y);
         }
         // End rendering for frame
+
+        for (Activity activity : activities) {
+            // If the player is close enough, display the activity popup
+            if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() / 2), player_y + ((float) player_texture.getHeight() / 2))) {
+                drawInteractionPopup(activity, 0);
+            }
+        }
+
+        // Allow for user interaction with activities.
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            handleActivityInteraction();}
+
+
+
+
+
         game.batch.end();
+
+
+
     }
 
     private void drawInteractionPopup(Activity activity, int mode){
