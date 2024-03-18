@@ -304,33 +304,28 @@ public class MainGameScreen implements Screen {
 
     private void drawInteractionPopup(Activity activity, int mode){
 
+        float popupXLocation = activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2);
+        float popupYLocation = activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3);
+
         if (energy + activity.getEnergyUsage() < 0){
-            game.batch.draw(popups[4][1],
-                    activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
-                    activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
+            game.batch.draw(popups[4][1],popupXLocation,popupYLocation);
         }
 
         else if (time + activity.getTimeUsage() >= MAX_TIME){
-            game.batch.draw(popups[5][0],
-                    activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
-                    activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));        }
+            game.batch.draw(popups[5][0],popupXLocation,popupYLocation);
+        }
 
         else if (Objects.equals(activity.getType(), "eat")){
             if (mealsEaten == 3){
-                game.batch.draw(popups[4][0],
-                        activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
-                        activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));            }
+                game.batch.draw(popups[4][0],popupXLocation,popupYLocation);
+            }
             else{
-                game.batch.draw(popups[activity.getPopupIndex()][mode],
-                        activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
-                        activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
+                game.batch.draw(popups[activity.getPopupIndex()][mode],popupXLocation,popupYLocation);
             }
         }
 
         else{
-            game.batch.draw(popups[activity.getPopupIndex()][mode],
-                    activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
-                    activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
+            game.batch.draw(popups[activity.getPopupIndex()][mode],popupXLocation,popupYLocation);
         }
 
     }
