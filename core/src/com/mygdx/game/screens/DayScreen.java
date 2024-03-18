@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.HesHustle;
+import jdk.tools.jmod.Main;
 
 public class DayScreen implements Screen {
 
@@ -57,6 +58,7 @@ public class DayScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             if (this.day != 7) {
                 ((MainGameScreen) MainGameScreen).startGameTimer();
+                ((MainGameScreen) MainGameScreen).setPlayerPosition(1360, 620);
                 ((Game) Gdx.app.getApplicationListener()).setScreen(this.MainGameScreen);
             }
             else {

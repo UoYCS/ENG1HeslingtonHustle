@@ -58,15 +58,14 @@ public class MainGameScreen implements Screen {
     TextureRegion sleepMarker;
 
     // Game world dimensions
-    final float GAME_WORLD_WIDTH = 1760;
-    final float GAME_WORLD_HEIGHT = 1280;
+    final float GAME_WORLD_WIDTH = 1568;
+    final float GAME_WORLD_HEIGHT = 1056;
 
 
 
     // Variables for player position
-    // *Temporarily initialised to center of map...will change.
-    float player_x = GAME_WORLD_WIDTH / 2;
-    float player_y = GAME_WORLD_HEIGHT / 2;
+    float player_x = 1360;
+    float player_y = 620;
 
     float camera_x = player_x;
     float camera_y = player_y;
@@ -183,10 +182,10 @@ public class MainGameScreen implements Screen {
         eatPopupIndex = 3;
 
         // Create Activity instances and add them to the activities ArrayList
-        activities.add(new Activity("study", 900, 600, -10, 20, studyMarker, studyPopupIndex));
-        activities.add(new Activity("sleep", 900, 500, 0, 0, sleepMarker, sleepPopupIndex));
-        activities.add(new Activity("rec", 800, 600, -20, 20, recreationMarker, recPopupIndex));
-        activities.add(new Activity("eat", 800, 500, 10, 20, eatMarker, eatPopupIndex));
+        activities.add(new Activity("study", 315, 535, -10, 20, studyMarker, studyPopupIndex));
+        activities.add(new Activity("sleep", 1375, 550, 0, 0, sleepMarker, sleepPopupIndex));
+        activities.add(new Activity("rec", 700, 360, -20, 20, recreationMarker, recPopupIndex));
+        activities.add(new Activity("eat", 1340, 150, 10, 20, eatMarker, eatPopupIndex));
 
 
         
@@ -278,7 +277,7 @@ public class MainGameScreen implements Screen {
             game.batch.draw(player_texture, player_x, player_y);}
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
-            System.out.println(camera_x + " " + camera_y);
+            System.out.println(player_x + " " + player_y);
         }
         // End rendering for frame
 
@@ -329,6 +328,10 @@ public class MainGameScreen implements Screen {
 
     }
 
+    public void setPlayerPosition(int x, int y){
+        player_x = x;
+        player_y = y;
+    }
 
     private void handleMovement(int horizontal, int vertical) {
 
