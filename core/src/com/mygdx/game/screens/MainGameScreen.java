@@ -176,10 +176,10 @@ public class MainGameScreen implements Screen {
 
         popups = TextureRegion.split(popupsPNG, popupsPNG.getWidth() / 2, popupsPNG.getHeight() / 4);
 
-        studyPopupIndex = 0;
+        eatPopupIndex = 0;
         recPopupIndex = 1;
-        sleepPopupIndex = 2;
-        eatPopupIndex = 3;
+        studyPopupIndex = 2;
+        sleepPopupIndex = 3;
 
         // Create Activity instances and add them to the activities ArrayList
         activities.add(new Activity("study", 315, 535, -10, 20, studyMarker, studyPopupIndex));
@@ -308,11 +308,11 @@ public class MainGameScreen implements Screen {
             // DISPLAY NO ENERGY MARKER
         }
 
-        if (time + activity.getTimeUsage() >= MAX_TIME){
+        else if (time + activity.getTimeUsage() >= MAX_TIME){
             // DISPLAY NO TIME MARKER
         }
 
-        if (Objects.equals(activity.getType(), "eat")){
+        else if (Objects.equals(activity.getType(), "eat")){
             if (mealsEaten == 3){
                 // DISPLAY EATEN 3 TIMES MARKER
             }else{
@@ -320,7 +320,9 @@ public class MainGameScreen implements Screen {
                         activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
                         activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
             }
-        } else{
+        }
+
+        else{
             game.batch.draw(popups[activity.getPopupIndex()][mode],
                     activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
                     activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
