@@ -324,11 +324,11 @@ public class MainGameScreen implements Screen {
             game.batch.draw(popups[4][0], popupXLocation, popupYLocation);
         }
 
-        else if (energy + activity.getEnergyUsage() < 0){
+        else if (energy + activity.getEnergyUsage() < 0 && time - timeLastInteraction > 3){
             game.batch.draw(popups[4][1],popupXLocation,popupYLocation);
         }
 
-        else if (time + activity.getTimeUsage() >= MAX_TIME){
+        else if (time + activity.getTimeUsage() >= MAX_TIME && time - timeLastInteraction > 3){
             game.batch.draw(popups[5][0],popupXLocation,popupYLocation);
         }
     }
