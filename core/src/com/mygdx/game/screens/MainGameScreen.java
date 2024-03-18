@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
 /**
  * MainGameScreen class represents the game
  * ....
@@ -36,6 +38,7 @@ public class MainGameScreen implements Screen {
     // Game assets
     Texture player_texture;    // Player Texture
     Sprite map;     // Map Background Sprite
+    Texture signTexture = new Texture(Gdx.files.internal("sign.png"));
 
     // The textures for the activity markers
     TextureRegion recreationMarker;
@@ -78,7 +81,10 @@ public class MainGameScreen implements Screen {
     int[][] eatCounter = new int[gameDaysLength][3];
     int mealsEaten = 0;
 
-  
+    BitmapFont font = new BitmapFont();
+
+
+
     // Orthographic camera for rendering
     OrthographicCamera camera;
 
@@ -323,6 +329,42 @@ public class MainGameScreen implements Screen {
         // Draw the energy bar in bottom right corner of the screen
         game.batch.draw(new Texture("energy_fill_" + colour + ".png"), energyBarX, energyBarY, (int) (this.energy * 1.28), 16);
         game.batch.draw(new Texture("energy_bar.png"), energyBarX, energyBarY, 128, 16);
+
+        // Calculate the position for the sign
+        float signX = game.camera.position.x - game.camera.viewportWidth / 2;
+        float signY = game.camera.position.y + game.camera.viewportHeight / 2 - 1.5f * signTexture.getHeight();
+
+        // Draw the sign with double the width and 1.5 times the height
+        game.batch.draw(signTexture, signX, signY, 3 * signTexture.getWidth(), 2f * signTexture.getHeight());
+
+        // Calculate the position for the font
+        float fontX = signX + 15;
+        float fontY = signY + 1f * signTexture.getHeight();
+
+        //Calculate time from the time variable
+        int hours = (time / 60) + 8;
+        int minutes = time % 60;
+
+        if (hours > 23){
+            hours = 0;
+        }
+
+        if (hours > 12){
+            hours -= 12;
+        }
+
+        if (hours == 0){
+            hours = 12;
+        }
+
+        if (minutes < 10){
+            font.draw(game.batch, "Time: " + hours + ":0" + minutes, fontX, fontY);
+        }
+        else {
+            font.draw(game.batch, "Time: " + hours + ":" + minutes, fontX, fontY);
+        }
+
+
 
         // Draw player based on previous logic and user input with the corresponding animation
 
