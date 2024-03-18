@@ -5,8 +5,11 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -88,6 +91,7 @@ public class MainGameScreen implements Screen {
     // Minutes from 8am
     // Max Value = 960 @ 12am.
     int time = 0;
+    final int MAX_TIME = 960;
 
     private Timer timer;
     private int timeInterval = 1000;
@@ -179,10 +183,10 @@ public class MainGameScreen implements Screen {
         eatPopupIndex = 3;
 
         // Create Activity instances and add them to the activities ArrayList
-        activities.add(new Activity("study", 600, 600, -10, 20, studyMarker, studyPopupIndex));
-        activities.add(new Activity("sleep", 600, 500, 20, 20, sleepMarker, sleepPopupIndex));
-        activities.add(new Activity("rec", 500, 600, -20, 20, recreationMarker, recPopupIndex));
-        activities.add(new Activity("eat", 500, 500, 10, 20, eatMarker, eatPopupIndex));
+        activities.add(new Activity("study", 900, 600, -10, 20, studyMarker, studyPopupIndex));
+        activities.add(new Activity("sleep", 900, 500, 0, 0, sleepMarker, sleepPopupIndex));
+        activities.add(new Activity("rec", 800, 600, -20, 20, recreationMarker, recPopupIndex));
+        activities.add(new Activity("eat", 800, 500, 10, 20, eatMarker, eatPopupIndex));
 
 
         
@@ -221,7 +225,7 @@ public class MainGameScreen implements Screen {
 
 
 
-        if (time == 960){
+        if (time == MAX_TIME){
             newDay();
         }
 
@@ -275,25 +279,45 @@ public class MainGameScreen implements Screen {
         else {
             game.batch.draw(player_texture, player_x, player_y);}
 
-
+        if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
+            System.out.println(camera_x + " " + camera_y);
+        }
         // End rendering for frame
         game.batch.end();
     }
 
     private void drawInteractionPopup(Activity activity, int mode){
-        if (Objects.equals(activity.getType(), "eat") || Objects.equals(activity.getType(), "sleep")){
-            game.batch.draw(popups[activity.getPopupIndex()][mode],
-                    activity.getX_location() - ((float) activity.getMarker().getRegionWidth() / 2),
-                    activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
+
+        if (energy + activity.getEnergyUsage() < 0){
+            // DISPLAY NO ENERGY MARKER
+        }
+
+        if (time + activity.getTimeUsage() >= MAX_TIME){
+            // DISPLAY NO TIME MARKER
+        }
+
+        if (Objects.equals(activity.getType(), "eat")){
+            if (mealsEaten == 3){
+                // DISPLAY EATEN 3 TIMES MARKER
+            }else{
+                game.batch.draw(popups[activity.getPopupIndex()][mode],
+                        activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
+                        activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
+            }
         } else{
             game.batch.draw(popups[activity.getPopupIndex()][mode],
-                    (float) (activity.getX_location() - ((float) activity.getMarker().getRegionWidth() * 1.8)),
+                    activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
                     activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
         }
+
     }
 
 
     private void handleMovement(int horizontal, int vertical) {
+
+        if (energy <= 10){
+            SPEED = 75;
+        }
 
         // Checking if player is moving diagonally and if so to normalise speed
 
@@ -390,6 +414,7 @@ public class MainGameScreen implements Screen {
             }
         }
     }
+
 
 
     private void newDay(){
