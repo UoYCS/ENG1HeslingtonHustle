@@ -104,6 +104,7 @@ public class MainGameScreen implements Screen {
     int[][] eatCounter = new int[gameDaysLength][3];
     int mealsEaten = 0;
 
+    private int timeLastInteraction = 0;
   
     // Orthographic camera for rendering
     OrthographicCamera camera;
@@ -293,9 +294,6 @@ public class MainGameScreen implements Screen {
             handleActivityInteraction();}
 
 
-
-
-
         game.batch.end();
 
 
@@ -307,27 +305,32 @@ public class MainGameScreen implements Screen {
         float popupXLocation = activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2);
         float popupYLocation = activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3);
 
-        if (energy + activity.getEnergyUsage() < 0){
+
+        if (time - timeLastInteraction <= 3 && timeLastInteraction != 0) {
+            //System.out.println(timeLastInteraction);
+            game.batch.draw(popups[activity.getPopupIndex()][1],popupXLocation,popupYLocation);
+            return;
+        }
+        
+        else{
+            if (mode ==1){
+                timeLastInteraction = time;
+            }
+            game.batch.draw(popups[activity.getPopupIndex()][mode],popupXLocation,popupYLocation);
+
+        }
+
+        if ((Objects.equals(activity.getType(), "eat") && mealsEaten == 3) && time - timeLastInteraction > 3){
+            game.batch.draw(popups[4][0], popupXLocation, popupYLocation);
+        }
+
+        else if (energy + activity.getEnergyUsage() < 0){
             game.batch.draw(popups[4][1],popupXLocation,popupYLocation);
         }
 
         else if (time + activity.getTimeUsage() >= MAX_TIME){
             game.batch.draw(popups[5][0],popupXLocation,popupYLocation);
         }
-
-        else if (Objects.equals(activity.getType(), "eat")){
-            if (mealsEaten == 3){
-                game.batch.draw(popups[4][0],popupXLocation,popupYLocation);
-            }
-            else{
-                game.batch.draw(popups[activity.getPopupIndex()][mode],popupXLocation,popupYLocation);
-            }
-        }
-
-        else{
-            game.batch.draw(popups[activity.getPopupIndex()][mode],popupXLocation,popupYLocation);
-        }
-
     }
 
     public void setPlayerPosition(int x, int y){
@@ -395,9 +398,8 @@ public class MainGameScreen implements Screen {
     private void handleActivityInteraction(){
         for (Activity activity : activities) {
             if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
-                drawInteractionPopup(activity, 1);
-
                 if (Objects.equals(activity.getType(), "sleep")) {
+                    drawInteractionPopup(activity, 1);
                     newDay();
                 }
 
@@ -410,13 +412,14 @@ public class MainGameScreen implements Screen {
                         mealsEaten++;
                         this.energy += (int) activity.getEnergyUsage();
                         this.time += (int) activity.getTimeUsage();
+                        drawInteractionPopup(activity, 1);
                     }
                 }
 
                 else if (this.energy + activity.getEnergyUsage() >= 0) {
                     this.energy += (int) activity.getEnergyUsage();
                     this.time += (int) activity.getTimeUsage();
-
+                    drawInteractionPopup(activity, 1);
                     if (Objects.equals(activity.getType(), "study")) {
                         studyCounter[day]++;
                     }
@@ -475,9 +478,9 @@ public class MainGameScreen implements Screen {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                time += 10;
+                time += 1;
             }
-        }, 0, timeInterval);
+        }, 0, timeInterval/10);
     }
 
     public void stopGameTimer() {
