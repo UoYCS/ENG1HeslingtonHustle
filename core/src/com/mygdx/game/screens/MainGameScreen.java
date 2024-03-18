@@ -174,12 +174,12 @@ public class MainGameScreen implements Screen {
         sleepMarker = tmpMarkers[0][3];
 
 
-        popups = TextureRegion.split(popupsPNG, popupsPNG.getWidth() / 2, popupsPNG.getHeight() / 4);
+        popups = TextureRegion.split(popupsPNG, popupsPNG.getWidth() / 2, popupsPNG.getHeight() / 6);
 
-        eatPopupIndex = 0;
+        studyPopupIndex = 0;
         recPopupIndex = 1;
-        studyPopupIndex = 2;
-        sleepPopupIndex = 3;
+        sleepPopupIndex = 2;
+        eatPopupIndex = 3;
 
         // Create Activity instances and add them to the activities ArrayList
         activities.add(new Activity("study", 315, 535, -10, 20, studyMarker, studyPopupIndex));
@@ -305,17 +305,22 @@ public class MainGameScreen implements Screen {
     private void drawInteractionPopup(Activity activity, int mode){
 
         if (energy + activity.getEnergyUsage() < 0){
-            // DISPLAY NO ENERGY MARKER
+            game.batch.draw(popups[4][1],
+                    activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
+                    activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
         }
 
         else if (time + activity.getTimeUsage() >= MAX_TIME){
-            // DISPLAY NO TIME MARKER
-        }
+            game.batch.draw(popups[5][0],
+                    activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
+                    activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));        }
 
         else if (Objects.equals(activity.getType(), "eat")){
             if (mealsEaten == 3){
-                // DISPLAY EATEN 3 TIMES MARKER
-            }else{
+                game.batch.draw(popups[4][0],
+                        activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
+                        activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));            }
+            else{
                 game.batch.draw(popups[activity.getPopupIndex()][mode],
                         activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2),
                         activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3));
