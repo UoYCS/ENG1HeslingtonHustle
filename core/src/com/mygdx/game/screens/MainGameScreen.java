@@ -7,20 +7,20 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 
 import com.mygdx.game.HesHustle;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
+import java.util.*;
 
 /**
  * MainGameScreen class represents the game
@@ -29,11 +29,25 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 public class MainGameScreen implements Screen {
 
     // Constant for player movement speed
-    public static float SPEED = 150;
+    public static int DEFAULT_SPEED = 150;
+    public static float SPEED = DEFAULT_SPEED;
 
     // Game assets
     Texture player_texture;    // Player Texture
-    Sprite map;     // Map Background Sprite
+  
+
+    private TiledMap map;
+
+    private OrthogonalTiledMapRenderer mapRenderer;
+
+    private static final int TILE_SIZE = 32;
+
+
+    int studyPopupIndex;
+    int eatPopupIndex;
+    int recPopupIndex;
+    int sleepPopupIndex;
+
     Texture signTexture = new Texture(Gdx.files.internal("sign.png"));
 
     // The textures for the activity markers
@@ -43,15 +57,20 @@ public class MainGameScreen implements Screen {
     TextureRegion sleepMarker;
 
     // Game world dimensions
-    final float GAME_WORLD_WIDTH = 1024;
-    final float GAME_WORLD_HEIGHT = 576;
+    final float GAME_WORLD_WIDTH = 1568;
+    final float GAME_WORLD_HEIGHT = 1056;
+
+
 
     // Variables for player position
-    // *Temporarily initialised to center of map...will change.
-    float player_x = GAME_WORLD_WIDTH / 2;
-    float player_y = GAME_WORLD_HEIGHT / 2;
+    float player_x = 1360;
+    float player_y = 620;
+
+    float camera_x = player_x;
+    float camera_y = player_y;
 
     int energy = 100;
+
 
     // Objects used for avatar animation and other textures
     Animation<TextureRegion> walkDownAnimation;
@@ -61,13 +80,20 @@ public class MainGameScreen implements Screen {
     Texture spriteSheet = new Texture(Gdx.files.internal("SpriteSheet.png"));
     Texture markersPNG = new Texture(Gdx.files.internal("Markers.png"));
 
+    Texture popupsPNG = new Texture(Gdx.files.internal("InteractionPopups.png"));
+
     // A variable for tracking elapsed time for the animation
     float stateTime;
 
+
     // Minutes from 8am
     // Max Value = 960 @ 12am.
-    int time = 0;
+    int time;
+    final int MAX_TIME = 960;
 
+    private Timer timer;
+    private int timeInterval = 1000;
+    public boolean gameTimerStarted = false;
     int day = 0;
     final int gameDaysLength = 7;
 
@@ -77,8 +103,9 @@ public class MainGameScreen implements Screen {
     int[][] eatCounter = new int[gameDaysLength][3];
     int mealsEaten = 0;
 
+    private int timeLastInteraction = 0;
+  
     BitmapFont font = new BitmapFont();
-
 
 
     // Orthographic camera for rendering
@@ -86,6 +113,7 @@ public class MainGameScreen implements Screen {
 
     HesHustle game;
 
+    TextureRegion[][] popups;
 
     // Initialise an ArrayList to store details about the activities players can interact with
     private final List<Activity> activities = new ArrayList<>();
@@ -99,8 +127,13 @@ public class MainGameScreen implements Screen {
     public MainGameScreen (HesHustle game){
         this.game = game;
 
+        TmxMapLoader mapLoader = new TmxMapLoader();
+        map = mapLoader.load("map/GameWorld.tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
+
+
         // Setting up the camera with initial position and size
-        this.camera = new OrthographicCamera((float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
+        this.camera = new OrthographicCamera((float) ((float) Gdx.graphics.getWidth() * 0.8), (float) ((float) Gdx.graphics.getHeight()* 0.8));
         this.camera.position.set(GAME_WORLD_WIDTH / 2, GAME_WORLD_HEIGHT / 2, 0);
         this.camera.update();
 
@@ -124,6 +157,9 @@ public class MainGameScreen implements Screen {
             walkLeftFrames[i] = tmp[3][i];
         }
 
+
+
+
         walkDownAnimation = new Animation<TextureRegion>(0.125f, walkDownFrames);
         walkRightAnimation = new Animation<TextureRegion>(0.125f, walkRightFrames);
         walkUpAnimation = new Animation<TextureRegion>(0.125f, walkUpFrames);
@@ -140,11 +176,19 @@ public class MainGameScreen implements Screen {
         studyMarker = tmpMarkers[0][2];
         sleepMarker = tmpMarkers[0][3];
 
+
+        popups = TextureRegion.split(popupsPNG, popupsPNG.getWidth() / 2, popupsPNG.getHeight() / 6);
+
+        studyPopupIndex = 0;
+        recPopupIndex = 1;
+        sleepPopupIndex = 2;
+        eatPopupIndex = 3;
+
         // Create Activity instances and add them to the activities ArrayList
-        activities.add(new Activity("study", 600, 400, -10, 20, studyMarker));
-        activities.add(new Activity("sleep", 600, 300, 20, 20, sleepMarker));
-        activities.add(new Activity("rec", 500, 400, -20, 20, recreationMarker));
-        activities.add(new Activity("eat", 500, 300, 10, 20, eatMarker));
+        activities.add(new Activity("study", 315, 535, -10, 20, studyMarker, studyPopupIndex));
+        activities.add(new Activity("sleep", 1375, 550, 0, 0, sleepMarker, sleepPopupIndex));
+        activities.add(new Activity("rec", 700, 360, -20, 20, recreationMarker, recPopupIndex));
+        activities.add(new Activity("eat", 1340, 150, 10, 20, eatMarker, eatPopupIndex));
 
 
         
@@ -155,10 +199,12 @@ public class MainGameScreen implements Screen {
      */
     @Override
     public void show() {
-        map = new Sprite(new Texture("temp_map.png"));
-        map.setPosition(0,0);
-        map.setSize(GAME_WORLD_WIDTH, GAME_WORLD_HEIGHT);
         player_texture = new Texture("Character.png");
+        //if (!gameTimerStarted) {
+            startGameTimer(time);
+        //    gameTimerStarted = true;
+        //}
+
     }
 
     /**
@@ -177,10 +223,143 @@ public class MainGameScreen implements Screen {
         int left  = Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT) ? 1 : 0;
         int right = Gdx.input.isKeyPressed(Input.Keys.D) || Gdx.input.isKeyPressed(Input.Keys.RIGHT) ? 1 : 0;
 
-
         int horizontal = (right - left);
         int vertical = (up - down);
 
+        handleMovement(horizontal, vertical);
+
+
+
+        if (time == MAX_TIME){
+            newDay();
+        }
+
+        // Clear Screen and begin rendering
+        ScreenUtils.clear(255, 255, 255, 1);
+        game.batch.begin();
+
+        // Update the position of the game camera using previous logic
+        game.camera.position.set(camera_x, camera_y, 0);
+        game.camera.update();
+        game.batch.setProjectionMatrix(game.camera.combined);
+
+        mapRenderer.setView(game.camera);
+        mapRenderer.render();
+
+
+        for (Activity activity : activities) {
+            // For each activity, draw it on the map with its corresponding marker
+            game.batch.draw(activity.getMarker(),
+                    activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2),
+                    activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
+
+
+            // If the player is close enough, display the activity popup
+            if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() / 2), player_y + ((float) player_texture.getHeight() / 2))) {
+                drawInteractionPopup(activity, 0);
+            }
+        }
+
+
+
+
+        // Draw player based on previous logic and user input with the corresponding animation
+        // Play correct walking animation based on player direction
+
+        if (horizontal == 1){
+            spriteAnimate(walkRightAnimation, player_x, player_y);}
+
+        else if (horizontal == -1){
+            spriteAnimate(walkLeftAnimation, player_x, player_y);}
+
+        else if (vertical == -1){
+            spriteAnimate(walkDownAnimation, player_x, player_y);}
+
+        else if (vertical == 1){
+            spriteAnimate(walkUpAnimation, player_x, player_y);}
+
+        // Show the idle character model if the player isn't moving
+        else {
+            game.batch.draw(player_texture, player_x, player_y);}
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
+            System.out.println(player_x + " " + player_y);
+        }
+        // End rendering for frame
+
+        for (Activity activity : activities) {
+            // If the player is close enough, display the activity popup
+            if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() / 2), player_y + ((float) player_texture.getHeight() / 2))) {
+                drawInteractionPopup(activity, 0);
+            }
+        }
+
+        // Allow for user interaction with activities.
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+            handleActivityInteraction();}
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+            stopGameTimer();
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(this.game, this));
+
+        }
+
+      
+      
+        drawEnergyBar();
+        drawTimeSign();
+        game.batch.end();
+
+
+
+    }
+
+    private void drawInteractionPopup(Activity activity, int mode){
+
+        float popupXLocation = activity.getX_location() - ((float) popups[activity.getPopupIndex()][mode].getRegionWidth() / 2);
+        float popupYLocation = activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3);
+
+
+
+        if (time - timeLastInteraction <= 1 && timeLastInteraction != 0) {
+            //System.out.println(timeLastInteraction);
+            game.batch.draw(popups[activity.getPopupIndex()][1],popupXLocation,popupYLocation);
+            return;
+        }
+        
+        else{
+            if (mode ==1){
+                timeLastInteraction = time;
+            }
+            game.batch.draw(popups[activity.getPopupIndex()][mode],popupXLocation,popupYLocation);
+
+        }
+
+        if ((Objects.equals(activity.getType(), "eat") && mealsEaten == 3) && time - timeLastInteraction > 3){
+            game.batch.draw(popups[4][0], popupXLocation, popupYLocation);
+        }
+
+        else if (energy + activity.getEnergyUsage() < 0 && time - timeLastInteraction > 3){
+            game.batch.draw(popups[4][1],popupXLocation,popupYLocation);
+        }
+
+        else if (time + activity.getTimeUsage() >= MAX_TIME && time - timeLastInteraction > 3){
+            game.batch.draw(popups[5][0],popupXLocation,popupYLocation);
+        }
+    }
+
+    public void setPlayerPosition(int x, int y){
+        player_x = x;
+        player_y = y;
+    }
+
+    private void handleMovement(int horizontal, int vertical) {
+
+        if (energy <= 15){
+            SPEED = (float) DEFAULT_SPEED / 2;
+        } else {
+            SPEED = DEFAULT_SPEED;
+        }
 
         // Checking if player is moving diagonally and if so to normalise speed
 
@@ -192,121 +371,56 @@ public class MainGameScreen implements Screen {
             float horizontal_normalised = horizontal / length;
             float vertical_normalised = vertical / length;
 
-            player_y += vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
-            player_x += horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
+            float y_movement = vertical_normalised * SPEED * Gdx.graphics.getDeltaTime();
+            float x_movement = horizontal_normalised * SPEED * Gdx.graphics.getDeltaTime();
+
+            if (!tileBlocked((int) player_x + (player_texture.getWidth()/2), (int) ((int) player_y + y_movement))){
+                player_y += y_movement;
+            }
+
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) player_y)){
+                player_x += x_movement;
+            }
+
         } else {
-            player_y += (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
-            player_x += (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
+            float y_movement = (vertical   * SPEED) * Gdx.graphics.getDeltaTime();
+            float x_movement = (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
+
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y-1 + y_movement))){
+                player_y += y_movement;
+                player_x += x_movement;
+            }
         }
 
 
         //  Bounds checking to keep the player within map boundaries
         player_x = Math.max(0,
-                            Math.min(player_x,
-                                     GAME_WORLD_WIDTH - player_texture.getWidth()));
+                Math.min(player_x,
+                        GAME_WORLD_WIDTH - player_texture.getWidth()));
 
         player_y = Math.max(0,
-                            Math.min(player_y,
-                                     GAME_WORLD_HEIGHT - player_texture.getHeight()));
-
+                Math.min(player_y,
+                        GAME_WORLD_HEIGHT - player_texture.getHeight()));
 
         // Bounds checking to keep camera within map boundaries
-        float camera_x =
-                Math.min(
-                        Math.max(player_x + (float) player_texture.getWidth() / 2, camera.viewportWidth / 2),
-                        GAME_WORLD_WIDTH - camera.viewportWidth / 2);
+        camera_x = Math.min(
+                Math.max(player_x + (float) player_texture.getWidth() / 2, camera.viewportWidth / 2),
+                GAME_WORLD_WIDTH - camera.viewportWidth / 2);
 
-        float camera_y =
-                Math.min(
-                        Math.max(player_y + (float) player_texture.getWidth() / 2, camera.viewportHeight / 2),
-                        GAME_WORLD_HEIGHT - camera.viewportHeight / 2);
+        camera_y = Math.min(
+                Math.max(player_y + (float) player_texture.getWidth() / 2, camera.viewportHeight / 2),
+                GAME_WORLD_HEIGHT - camera.viewportHeight / 2);
+    }
 
-
-        // Allow for user interaction with activities.
-        // When Interact button is pressed, check if the player is close to an activity, and process logic accordingly.
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            for (Activity activity : activities) {
-                if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
-
-                    if (Objects.equals(activity.getType(), "sleep")) {
-                        System.out.println("Day completed:" + day);
-                        System.out.println(Arrays.toString(studyCounter));
-                        System.out.println(Arrays.toString(eatCounter[day]));
-                        System.out.println(Arrays.toString(recCounter));
-
-                        day += 1;
-                        energy = 100;
-                        time = 0;
-                        mealsEaten = 0;
-
-                        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
-                    }
-
-                    else if (Objects.equals(activity.getType(), "eat")) {
-                        if (mealsEaten == 3){
-                            System.out.println("Already eaten 3 times today");
-                        }
-                        else {
-                            eatCounter[day][mealsEaten] = time;
-                            mealsEaten++;
-                            this.energy += (int) activity.getEnergyUsage();
-                            this.time += (int) activity.getTimeUsage();
-                        }
-                    }
-
-                    else if (this.energy + activity.getEnergyUsage() >= 0) {
-                        this.energy += (int) activity.getEnergyUsage();
-                        this.time += (int) activity.getTimeUsage();
-
-                        if (Objects.equals(activity.getType(), "study")) {
-                            studyCounter[day]++;
-                        }
-
-                        if (Objects.equals(activity.getType(), "rec")) {
-                            recCounter[day]++;
-                        }
-
-                    } else {
-                        System.out.println("Not enough energy to perform activity");
-                        }
-
-                    if (this.energy >= 100) {
-                        this.energy = 100;
-                    }
-
-                }
-            }
-        }
-
-
-
-
-
-
-        // Clear Screen and begin rendering
-        ScreenUtils.clear(255, 255, 255, 1);
-        game.batch.begin();
-        map.draw(game.batch);
-
-        // For each activity, draw it on the map with its corresponding marker
-        for (Activity activity : activities) {
-            game.batch.draw(activity.getMarker(), activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2), activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
-        }
-
-
-
-        // Update the position of the game camera using previous logic
-        game.camera.position.set(camera_x, camera_y, 0);
-        game.camera.update();
-        game.batch.setProjectionMatrix(game.camera.combined);
+    private void drawEnergyBar(){
 
         // Set colour of energy bar based on energy level
         // If health above 66, green, if above 33, yellow, if below 33, red
         String colour;
-        if (this.energy > 66){
+        if (this.energy > 60){
             colour = "green";
         }
-        else if (this.energy > 33){
+        else if (this.energy > 15){
             colour = "yellow";
         }
         else {
@@ -316,10 +430,12 @@ public class MainGameScreen implements Screen {
         float energyBarX = game.camera.position.x + game.camera.viewportWidth / 2 - 128 - 375; // 128 is the width of the health bar, 10 is the offset
         float energyBarY = game.camera.position.y - game.camera.viewportHeight / 2 + 10; // 10 is the offset
 
-
         // Draw the energy bar in bottom right corner of the screen
         game.batch.draw(new Texture("energy_fill_" + colour + ".png"), energyBarX, energyBarY, (int) (this.energy * 1.28), 16);
-        game.batch.draw(new Texture("energy_bar.png"), energyBarX, energyBarY, 128, 16);
+        game.batch.draw(new Texture("energy_bar_temp.png"), energyBarX, energyBarY, 128, 16);
+    }
+
+    private void drawTimeSign(){
 
         // Calculate the position for the sign
         float signX = game.camera.position.x - game.camera.viewportWidth / 2;
@@ -328,72 +444,96 @@ public class MainGameScreen implements Screen {
         // Draw the sign with double the width and 1.5 times the height
         game.batch.draw(signTexture, signX, signY, 3 * signTexture.getWidth(), 2f * signTexture.getHeight());
 
-        // Calculate the position for the font
-        float fontX = signX + 15;
-        float fontY = signY + 1f * signTexture.getHeight();
-
         //Calculate time from the time variable
         int hours = (time / 60) + 8;
         int minutes = time % 60;
 
-        if (hours > 23){
-            hours = 0;
-        }
+        font.getData().setScale(1.5F);
+        font.setUseIntegerPositions(false);
 
-        if (hours > 12){
-            hours -= 12;
-        }
+        int rounded_minutes = (int) (Math.floor(minutes / 10.0) * 10);
 
-        if (hours == 0){
-            hours = 12;
-        }
+        GlyphLayout layout;
 
-        if (minutes < 10){
-            font.draw(game.batch, "Time: " + hours + ":0" + minutes, fontX, fontY);
+        if (rounded_minutes == 0){
+            layout = new GlyphLayout(font, hours + ":0" + rounded_minutes);
         }
         else {
-            font.draw(game.batch, "Time: " + hours + ":" + minutes, fontX, fontY);
+            layout = new GlyphLayout(font, hours + ":" + rounded_minutes);
         }
 
+        float fontX = signX + ((float) 1.5 * signTexture.getWidth()) - layout.width / 2;
+        float fontY = signY + 1f * signTexture.getHeight();
 
-
-        // Draw player based on previous logic and user input with the corresponding animation
-
-        // if the player is moving right, play the walking up animation
-
-        if (horizontal == 1){
-            spriteAnimate(walkRightAnimation, player_x, player_y);
+        if (rounded_minutes == 0){
+            font.draw(game.batch, hours + ":0" + rounded_minutes, fontX, fontY);
         }
-
-        // if the player is moving left, play the walking left animation
-
-        else if (horizontal == -1){
-            spriteAnimate(walkLeftAnimation, player_x, player_y);
-        }
-
-        // if the player is moving down, play the walking down animation
-
-        else if (vertical == -1){
-            spriteAnimate(walkDownAnimation, player_x, player_y);
-        }
-
-        // if the player is moving up, play the walking up animation
-
-        else if (vertical == 1){
-            spriteAnimate(walkUpAnimation, player_x, player_y);
-        }
-
-        // if the player isn't moving, display the idle character model
-
         else {
-            game.batch.draw(player_texture, player_x, player_y);
+            font.draw(game.batch, hours + ":" + rounded_minutes, fontX, fontY);
         }
 
 
 
 
-        // End rendering for frame
-        game.batch.end();
+    }
+
+
+
+    private void handleActivityInteraction(){
+        for (Activity activity : activities) {
+            if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
+                if (Objects.equals(activity.getType(), "sleep")) {
+                    drawInteractionPopup(activity, 1);
+                    newDay();
+                }
+
+                else if (Objects.equals(activity.getType(), "eat")) {
+                    if (mealsEaten == 3){
+                        System.out.println("Already eaten 3 times today");
+                    }
+                    else {
+                        eatCounter[day][mealsEaten] = time;
+                        mealsEaten++;
+                        this.energy += (int) activity.getEnergyUsage();
+                        this.time += (int) activity.getTimeUsage();
+                        drawInteractionPopup(activity, 1);
+                    }
+                }
+
+                else if (this.energy + activity.getEnergyUsage() >= 0) {
+                    this.energy += (int) activity.getEnergyUsage();
+                    this.time += (int) activity.getTimeUsage();
+                    drawInteractionPopup(activity, 1);
+                    if (Objects.equals(activity.getType(), "study")) {
+                        studyCounter[day]++;
+                    }
+
+                    if (Objects.equals(activity.getType(), "rec")) {
+                        recCounter[day]++;
+                    }
+
+                } else {
+                    System.out.println("Not enough energy to perform activity");
+                }
+
+                if (this.energy >= 100) {
+                    this.energy = 100;
+                }
+
+            }
+        }
+    }
+
+
+
+    private void newDay(){
+        stopGameTimer();
+        day += 1;
+        energy = 100;
+        time = 0;
+        mealsEaten = 0;
+        timeLastInteraction = 0;
+        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
     }
 
 
@@ -402,6 +542,37 @@ public class MainGameScreen implements Screen {
         stateTime += Gdx.graphics.getDeltaTime();
         TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
         game.batch.draw(currentFrame, player_x, player_y);
+    }
+
+    private boolean tileBlocked(int x, int y){
+        for(MapLayer layer : map.getLayers()){
+            TiledMapTileLayer tileLayer = (TiledMapTileLayer) layer;
+
+            TiledMapTileLayer.Cell cell = tileLayer.getCell(x / TILE_SIZE, y / TILE_SIZE);
+            if (cell != null && cell.getTile() != null && cell.getTile().getProperties().containsKey("blocked")) {
+                return true;
+            }
+        }
+    return false;
+    }
+
+    public void startGameTimer(int timerTime) {
+        stopGameTimer();
+        timer = new Timer();
+        time = timerTime;
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                time += 1;
+            }
+        }, 0, timeInterval/10);
+    }
+
+    public void stopGameTimer() {
+        if(timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
 
 
@@ -452,7 +623,11 @@ public class MainGameScreen implements Screen {
     public void dispose() {
         player_texture.dispose();
         spriteSheet.dispose();
+        map.dispose();
+        mapRenderer.dispose();
+        //stopGameTimer();
     }
+
 }
 
 
@@ -466,14 +641,16 @@ class Activity {
     private final float energyUsage;
     private final float timeUsage;
     private final TextureRegion marker;
+    private final int popup;
 
-    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage, TextureRegion marker) {
+    public Activity(String type, int x_location, int y_location, float energyUsage, float timeUsage, TextureRegion marker, int popupIndex) {
         this.type = type;
         this.x_location = x_location;
         this.y_location = y_location;
         this.energyUsage = energyUsage;
         this.timeUsage = timeUsage;
         this.marker = marker;
+        this.popup = popupIndex;
     }
 
     public int getX_location() {
@@ -497,6 +674,9 @@ class Activity {
     }
 
     public TextureRegion getMarker() { return marker; }
+
+    public int getPopupIndex() { return popup; }
+
 
     /**
      * Check if the player is close enough to interact with the activity.
