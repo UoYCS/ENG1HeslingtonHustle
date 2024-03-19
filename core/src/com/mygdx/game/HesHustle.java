@@ -18,25 +18,24 @@ public class HesHustle extends Game {
 	// SpriteBatch used for rendering graphics.
 	public SpriteBatch batch;
 
+	// OrthographicCamera used for rendering 2D graphics.
 	public OrthographicCamera camera;
 
 
 	/**
-	 * create() function is called when application is first created.
-	 * ...
-	 * ...
+	 * Called when the application is created.
+	 * The SpriteBatch is initialised and the screen is set to the Main Menu
 	 */
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		this.setScreen(new MainMenuScreen(this, null));
-		//this.setScreen(new MainGameScreen(this));
 	}
 
 
 
 	/**
-	 * render() is called every frame to render the game.
+	 * Called every frame to render the game.
 	 * Rendering a frame is delegated to the current active screen.
 	 */
 	@Override
