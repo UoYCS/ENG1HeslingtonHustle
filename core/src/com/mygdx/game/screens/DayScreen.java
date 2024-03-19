@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -25,6 +26,8 @@ public class DayScreen implements Screen {
     private BitmapFont font;
     private SpriteBatch dayBatch;
 
+    private Texture continueButton;
+
 
     public DayScreen(HesHustle game, Screen MainGameScreen, int day, int[] studyCounter, int[] recCounter, int[][] eatCounter) {
         this.game = game;
@@ -43,6 +46,8 @@ public class DayScreen implements Screen {
         font = new BitmapFont();
         font.setColor(Color.WHITE);
         font.getData().setScale(3);
+
+        continueButton = new Texture("ContinueButton.png");
 
     }
 
@@ -135,6 +140,9 @@ public class DayScreen implements Screen {
         font.draw(dayBatch, study, (screenWidth - 750) / 2, (float) (screenHeight * 0.35));
         font.draw(dayBatch, eaten, (screenWidth - 750) / 2, (float) (screenHeight * 0.25));
         font.draw(dayBatch, rec, (screenWidth - 750) / 2, (float) (screenHeight * 0.15));
+
+        //Drawing the continue button
+        dayBatch.draw(continueButton, (float) ((Gdx.graphics.getWidth() - continueButton.getWidth())/1.25), (float) ((Gdx.graphics.getHeight() - continueButton.getHeight())/8),continueButton.getWidth()*2,continueButton.getHeight()*2);
 
         dayBatch.end();
 

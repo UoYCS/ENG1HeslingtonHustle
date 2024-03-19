@@ -26,6 +26,7 @@ public class EndGameScreen implements Screen {
     private SpriteBatch dayBatch;
     private HesHustle game;
     private Texture background;
+    private Texture continueButton;
 
     private int score = 0;
     private int timesEaten;
@@ -50,6 +51,7 @@ public class EndGameScreen implements Screen {
         font.getData().setScale(2); // Adjust the scale as needed
 
         background = new Texture("endScreenBackground.png");
+        continueButton = new Texture("ContinueButton.png");
     }
 
     @Override
@@ -201,6 +203,10 @@ public class EndGameScreen implements Screen {
         font.draw(dayBatch, totalDaysStudy, (screenWidth - totalDaysStudy.width) / 2, (float) (screenHeight*0.3));
         font.draw(dayBatch, totalRec, (screenWidth - totalRec.width) / 2, (float) (screenHeight*0.2));
         font.draw(dayBatch, totalEat, (screenWidth - totalEat.width) / 2, (float) (screenHeight*0.1));
+
+        //Drawing the box to with instructions to continue
+        dayBatch.draw(continueButton, (float) ((Gdx.graphics.getWidth() - continueButton.getWidth())/1.15), (float) ((Gdx.graphics.getHeight() - continueButton.getHeight())/10),continueButton.getWidth()*2,continueButton.getHeight()*2);
+
         dayBatch.end();
 
     }
