@@ -117,7 +117,7 @@ public class MainGameScreen implements Screen {
 
 
     final float originalViewportWidth = 800;
-    final float originalViewportHeight = 480;
+    final float originalViewportHeight = 450;
 
 
 
