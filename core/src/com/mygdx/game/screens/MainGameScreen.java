@@ -5,6 +5,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -119,10 +120,14 @@ public class MainGameScreen implements Screen {
     // Sound effects
     Sound eating_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/eating.mp3"));
     Sound rec_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/ducks.mp3"));
-    Sound study_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/studying.mp3"));
     Sound low_energy_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/no_energy.mp3"));
-    Sound sleep_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/sleeping.mp3"));
+    Sound low_energy_sound_long = Gdx.audio.newSound(Gdx.files.internal("sfx/no_energy_long.mp3"));
+    Music sleep_sound = Gdx.audio.newMusic(Gdx.files.internal("sfx/sleeping_fade_out.mp3"));
+    Music study_sound = Gdx.audio.newMusic(Gdx.files.internal("sfx/studying.mp3"));
 
+
+
+    boolean bgMuted = false;
 
     // Initialise an ArrayList to store details about the activities players can interact with
     private final List<Activity> activities = new ArrayList<>();
@@ -317,6 +322,13 @@ public class MainGameScreen implements Screen {
       
         drawEnergyBar();
         drawTimeSign();
+
+        if (bgMuted || this.game.gameMuted){
+            this.game.backgroundMusic.setVolume(0);
+        } else{
+            this.game.backgroundMusic.setVolume(0.5f);
+        }
+
         game.batch.end();
 
 
@@ -331,7 +343,6 @@ public class MainGameScreen implements Screen {
 
 
         if (time - timeLastInteraction <= 1 && timeLastInteraction != 0) {
-            //System.out.println(timeLastInteraction);
             game.batch.draw(popups[activity.getPopupIndex()][1],popupXLocation,popupYLocation);
             return;
         }
@@ -434,8 +445,10 @@ public class MainGameScreen implements Screen {
             colour = "yellow";
         }
         else {
-            low_energy_sound.play(1.0f);
             colour = "red";
+            if(!this.game.gameMuted){
+                low_energy_sound_long.play(0.05f);
+            }
         }
 
         float energyBarX = game.camera.position.x + game.camera.viewportWidth / 2 - 128 - 375; // 128 is the width of the health bar, 10 is the offset
@@ -494,9 +507,6 @@ public class MainGameScreen implements Screen {
         for (Activity activity : activities) {
             if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
                 if (Objects.equals(activity.getType(), "sleep")) {
-
-                    sleep_sound.play(1.0f);
-
                     drawInteractionPopup(activity, 1);
                     newDay();
                 }
@@ -506,7 +516,9 @@ public class MainGameScreen implements Screen {
                         System.out.println("Already eaten 3 times today");
                     }
                     else {
-                        eating_sound.play(1.0f);
+                        if(!this.game.gameMuted){
+                            eating_sound.play(1.0f);
+                        }
                         eatCounter[day][mealsEaten] = time;
                         mealsEaten++;
                         this.energy += (int) activity.getEnergyUsage();
@@ -520,13 +532,27 @@ public class MainGameScreen implements Screen {
                     this.time += (int) activity.getTimeUsage();
                     drawInteractionPopup(activity, 1);
                     if (Objects.equals(activity.getType(), "study")) {
-                        study_sound.play(1.0f);
+
+                        if(!this.game.gameMuted){
+                            bgMuted = true;
+                            study_sound.play();
+                            study_sound.setOnCompletionListener(new Music.OnCompletionListener() {
+                                @Override
+                                public void onCompletion(Music music) {
+                                    bgMuted = false;
+                                }
+                            });
+                        }
+
+
 
                         studyCounter[day]++;
                     }
 
                     if (Objects.equals(activity.getType(), "rec")) {
-                        rec_sound.play(1.0f);
+                        if(!this.game.gameMuted){
+                            rec_sound.play(1.0f);
+                        }
                         recCounter[day]++;
                     }
 
@@ -546,6 +572,18 @@ public class MainGameScreen implements Screen {
 
 
     private void newDay(){
+
+        if (!this.game.gameMuted){
+            bgMuted = true;
+            sleep_sound.play();
+            sleep_sound.setOnCompletionListener(new Music.OnCompletionListener() {
+                @Override
+                public void onCompletion(Music music) {
+                    bgMuted = false;
+                }
+            });
+        }
+
         stopGameTimer();
         day += 1;
         energy = 100;

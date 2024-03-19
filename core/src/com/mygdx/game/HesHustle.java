@@ -26,6 +26,7 @@ public class HesHustle extends Game {
 
 	public Music backgroundMusic;
 
+	public boolean gameMuted;
 
 	/**
 	 * create() function is called when application is first created.
@@ -43,6 +44,7 @@ public class HesHustle extends Game {
 
 		// set background music to loop and play
 		backgroundMusic.setLooping(true);
+		backgroundMusic.setVolume(0.5f);
 		backgroundMusic.play();
 	}
 
@@ -56,4 +58,11 @@ public class HesHustle extends Game {
 		super.render();
 	}
 
+	public void muteGame(){
+		gameMuted = true;
+	}
+
+	public void unmuteGame(){
+		gameMuted = false;
+	}
 }

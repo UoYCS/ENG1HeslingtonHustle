@@ -114,6 +114,12 @@ public class MainMenuScreen implements Screen {
         menuBatch.draw(playButtonTexture, playButtonBounds.x, playButtonBounds.y, playButtonBounds.width, playButtonBounds.height);
         menuBatch.draw(quitButtonTexture, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);
 
+        if (this.game.gameMuted){
+            muteButtonTexture = new Texture(Gdx.files.internal("Muted.png"));
+        }else{
+            muteButtonTexture = new Texture(Gdx.files.internal("VolumeButton.png"));
+        }
+
         menuBatch.draw(muteButtonTexture, muteButtonBounds.x, muteButtonBounds.y, muteButtonBounds.width, muteButtonBounds.height);
         menuBatch.draw(fullButtonTexture, fullButtonBounds.x, fullButtonBounds.y, fullButtonBounds.width, fullButtonBounds.height);
 
@@ -139,14 +145,14 @@ public class MainMenuScreen implements Screen {
             } else if (quitButtonBounds.contains(touchX, touchY)) {
                 Gdx.app.exit();
             } else if (muteButtonBounds.contains(touchX, touchY)) {
-                muted = !muted;
+                this.game.gameMuted = !this.game.gameMuted;
 
-                if (muted){
-                    muteButtonTexture = new Texture(Gdx.files.internal("Muted.png"));
+                if (this.game.gameMuted){
+                    this.game.backgroundMusic.setVolume(0);
+                } else{
+                    this.game.backgroundMusic.setVolume(0.5f);
                 }
-                else{
-                    muteButtonTexture = new Texture(Gdx.files.internal("VolumeButton.png"));
-                }
+
             } else if (fullButtonBounds.contains(touchX, touchY)) {
                 if (!Gdx.graphics.isFullscreen()) {
                     Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
