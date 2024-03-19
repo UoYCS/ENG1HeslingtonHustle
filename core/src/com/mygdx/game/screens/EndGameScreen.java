@@ -25,6 +25,7 @@ public class EndGameScreen implements Screen {
     private final SpriteBatch scoreSummaryBatch; //SpriteBatch used to render screen
     private final HesHustle game; // Main Game instance reference
     private final Texture background; // Background art of screen
+    private Texture continueButton; // Continue button
 
     private int score = 0; // Players game score
 
@@ -33,7 +34,9 @@ public class EndGameScreen implements Screen {
     private final int[] recCounter;
     private final int[][] eatCounter;
 
-    // Variables to store amount of times activities were done
+
+
+  // Variables to store amount of times activities were done
     private int timesEaten;
     private int studyCount;
     private int daysStudied;
@@ -62,8 +65,9 @@ public class EndGameScreen implements Screen {
         font.setColor(Color.BLACK);
         font.getData().setScale(2); // Adjust the scale as needed
 
-        // Setting background artwork
+        // Setting background artwork and continue button textures
         background = new Texture("endScreenBackground.png");
+        continueButton = new Texture("ContinueButton.png");
 
         calculateScore();
 
@@ -137,6 +141,9 @@ public class EndGameScreen implements Screen {
         font.draw(scoreSummaryBatch, totalDaysStudy, (screenWidth - totalDaysStudy.width) / 2, (float) (screenHeight*0.3));
         font.draw(scoreSummaryBatch, totalRec, (screenWidth - totalRec.width) / 2, (float) (screenHeight*0.2));
         font.draw(scoreSummaryBatch, totalEat, (screenWidth - totalEat.width) / 2, (float) (screenHeight*0.1));
+      
+        scoreSummaryBatch.draw(continueButton, (float) ((Gdx.graphics.getWidth() - continueButton.getWidth())/1.15), (float) ((Gdx.graphics.getHeight() - continueButton.getHeight())/10),continueButton.getWidth()*2,continueButton.getHeight()*2);
+
         scoreSummaryBatch.end();
 
     }
