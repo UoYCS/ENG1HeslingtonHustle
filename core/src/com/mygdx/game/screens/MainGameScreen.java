@@ -7,14 +7,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 
 import com.mygdx.game.HesHustle;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -22,8 +21,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 
 import java.util.*;
-
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 /**
  * MainGameScreen class represents the game
@@ -51,7 +48,6 @@ public class MainGameScreen implements Screen {
     int recPopupIndex;
     int sleepPopupIndex;
 
-    Sprite map;     // Map Background Sprite
     Texture signTexture = new Texture(Gdx.files.internal("sign.png"));
 
     // The textures for the activity markers
@@ -310,65 +306,8 @@ public class MainGameScreen implements Screen {
 
       
       
-        // Set colour of energy bar based on energy level
-        // If health above 66, green, if above 33, yellow, if below 33, red
-        String colour;
-        if (this.energy > 66){
-            colour = "green";
-        }
-        else if (this.energy > 33){
-            colour = "yellow";
-        }
-        else {
-            colour = "red";
-        }
-
-        float energyBarX = game.camera.position.x + game.camera.viewportWidth / 2 - 128 - 375; // 128 is the width of the health bar, 10 is the offset
-        float energyBarY = game.camera.position.y - game.camera.viewportHeight / 2 + 10; // 10 is the offset
-
-
-        // Draw the energy bar in bottom right corner of the screen
-        game.batch.draw(new Texture("energy_fill_" + colour + ".png"), energyBarX, energyBarY, (int) (this.energy * 1.28), 16);
-        game.batch.draw(new Texture("energy_bar.png"), energyBarX, energyBarY, 128, 16);
-
-        // Calculate the position for the sign
-        float signX = game.camera.position.x - game.camera.viewportWidth / 2;
-        float signY = game.camera.position.y + game.camera.viewportHeight / 2 - 1.5f * signTexture.getHeight();
-
-        // Draw the sign with double the width and 1.5 times the height
-        game.batch.draw(signTexture, signX, signY, 3 * signTexture.getWidth(), 2f * signTexture.getHeight());
-
-        // Calculate the position for the font
-        float fontX = signX + 15;
-        float fontY = signY + 1f * signTexture.getHeight();
-
-        //Calculate time from the time variable
-        int hours = (time / 60) + 8;
-        int minutes = time % 60;
-
-        if (hours > 23){
-            hours = 0;
-        }
-
-        if (hours > 12){
-            hours -= 12;
-        }
-
-        if (hours == 0){
-            hours = 12;
-        }
-
-        if (minutes < 10){
-            font.draw(game.batch, "Time: " + hours + ":0" + minutes, fontX, fontY);
-        }
-        else {
-            font.draw(game.batch, "Time: " + hours + ":" + minutes, fontX, fontY);
-        }
-
-      
-      
-      
-      
+        drawEnergyBar();
+        drawTimeSign();
         game.batch.end();
 
 
@@ -416,7 +355,7 @@ public class MainGameScreen implements Screen {
 
     private void handleMovement(int horizontal, int vertical) {
 
-        if (energy <= 10){
+        if (energy <= 15){
             SPEED = (float) DEFAULT_SPEED / 2;
         } else {
             SPEED = DEFAULT_SPEED;
@@ -472,6 +411,73 @@ public class MainGameScreen implements Screen {
                 Math.max(player_y + (float) player_texture.getWidth() / 2, camera.viewportHeight / 2),
                 GAME_WORLD_HEIGHT - camera.viewportHeight / 2);
     }
+
+    private void drawEnergyBar(){
+
+        // Set colour of energy bar based on energy level
+        // If health above 66, green, if above 33, yellow, if below 33, red
+        String colour;
+        if (this.energy > 60){
+            colour = "green";
+        }
+        else if (this.energy > 15){
+            colour = "yellow";
+        }
+        else {
+            colour = "red";
+        }
+
+        float energyBarX = game.camera.position.x + game.camera.viewportWidth / 2 - 128 - 375; // 128 is the width of the health bar, 10 is the offset
+        float energyBarY = game.camera.position.y - game.camera.viewportHeight / 2 + 10; // 10 is the offset
+
+        // Draw the energy bar in bottom right corner of the screen
+        game.batch.draw(new Texture("energy_fill_" + colour + ".png"), energyBarX, energyBarY, (int) (this.energy * 1.28), 16);
+        game.batch.draw(new Texture("energy_bar_temp.png"), energyBarX, energyBarY, 128, 16);
+    }
+
+    private void drawTimeSign(){
+
+        // Calculate the position for the sign
+        float signX = game.camera.position.x - game.camera.viewportWidth / 2;
+        float signY = game.camera.position.y + game.camera.viewportHeight / 2 - 1.5f * signTexture.getHeight();
+
+        // Draw the sign with double the width and 1.5 times the height
+        game.batch.draw(signTexture, signX, signY, 3 * signTexture.getWidth(), 2f * signTexture.getHeight());
+
+        //Calculate time from the time variable
+        int hours = (time / 60) + 8;
+        int minutes = time % 60;
+
+        font.getData().setScale(1.5F);
+        font.setUseIntegerPositions(false);
+
+        int rounded_minutes = (int) (Math.floor(minutes / 10.0) * 10);
+
+        GlyphLayout layout;
+
+        if (rounded_minutes == 0){
+            layout = new GlyphLayout(font, hours + ":0" + rounded_minutes);
+        }
+        else {
+            layout = new GlyphLayout(font, hours + ":" + rounded_minutes);
+        }
+
+        float fontX = signX + ((float) 1.5 * signTexture.getWidth()) - layout.width / 2;
+        float fontY = signY + 1f * signTexture.getHeight();
+
+        if (rounded_minutes == 0){
+            font.draw(game.batch, hours + ":0" + rounded_minutes, fontX, fontY);
+        }
+        else {
+            font.draw(game.batch, hours + ":" + rounded_minutes, fontX, fontY);
+        }
+
+
+
+
+    }
+
+
 
     private void handleActivityInteraction(){
         for (Activity activity : activities) {
