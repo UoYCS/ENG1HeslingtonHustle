@@ -450,8 +450,10 @@ public class MainGameScreen implements Screen {
             colour = "red";
         }
 
-        float energyBarX = game.camera.position.x + game.camera.viewportWidth / 2 - 128 - 375; // 128 is the width of the health bar, 10 is the offset
-        float energyBarY = game.camera.position.y - game.camera.viewportHeight / 2 + 10; // 10 is the offset
+        // Set the position of the bar to the bottom left of the screen (plus an offset)
+        float energyBarX = game.camera.position.x - game.camera.viewportWidth / 2 + 11;
+        float energyBarY = game.camera.position.y - game.camera.viewportHeight / 2 + 10;
+
 
         // Draw the energy bar in bottom right corner of the screen
         game.batch.draw(new Texture("energy_fill_" + colour + ".png"), energyBarX, energyBarY, (int) (this.energy * 1.28), 16);
