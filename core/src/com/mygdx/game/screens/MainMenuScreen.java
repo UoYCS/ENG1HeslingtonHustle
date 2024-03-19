@@ -17,6 +17,7 @@ public class MainMenuScreen implements Screen {
     private SpriteBatch menuBatch;
 
     Texture playButtonTexture;
+    Texture resumeButtonTexture;
     Texture quitButtonTexture;
 
     Texture muteButtonTexture;
@@ -51,6 +52,7 @@ public class MainMenuScreen implements Screen {
         background = new Texture(Gdx.files.internal("background.png"));
 
         playButtonTexture = new Texture(Gdx.files.internal("StartButton.png"));
+        resumeButtonTexture = new Texture(Gdx.files.internal("ResumeButton.png"));
         quitButtonTexture = new Texture(Gdx.files.internal("QuitButton.png"));
 
         muteButtonTexture = new Texture(Gdx.files.internal("VolumeButton.png"));
@@ -111,7 +113,13 @@ public class MainMenuScreen implements Screen {
 
         menuBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        menuBatch.draw(playButtonTexture, playButtonBounds.x, playButtonBounds.y, playButtonBounds.width, playButtonBounds.height);
+        if (this.gameScreen != null){
+            menuBatch.draw(resumeButtonTexture, playButtonBounds.x, playButtonBounds.y, playButtonBounds.width, playButtonBounds.height);
+        }
+        else{
+            menuBatch.draw(playButtonTexture, playButtonBounds.x, playButtonBounds.y, playButtonBounds.width, playButtonBounds.height);
+        }
+
         menuBatch.draw(quitButtonTexture, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);
 
         menuBatch.draw(muteButtonTexture, muteButtonBounds.x, muteButtonBounds.y, muteButtonBounds.width, muteButtonBounds.height);
