@@ -21,11 +21,15 @@ public class MainMenuScreen implements Screen {
 
     Texture muteButtonTexture;
     Texture fullButtonTexture;
+    Texture title;
+    Texture background;
 
     private Rectangle playButtonBounds;
     private Rectangle quitButtonBounds;
     private Rectangle muteButtonBounds;
     private Rectangle fullButtonBounds;
+
+    boolean muted;
 
     HesHustle game;
 
@@ -43,12 +47,22 @@ public class MainMenuScreen implements Screen {
         font.getData().setScale(5); // Adjust the scale as needed
 
 
-        playButtonTexture = new Texture(Gdx.files.internal("rectangle_button.png"));
-        quitButtonTexture = new Texture(Gdx.files.internal("rectangle_button.png"));
+        title = new Texture(Gdx.files.internal("Title.png"));
+        background = new Texture(Gdx.files.internal("background.png"));
 
-        muteButtonTexture = new Texture(Gdx.files.internal("square_button.png"));
-        fullButtonTexture = new Texture(Gdx.files.internal("square_button.png"));
+        playButtonTexture = new Texture(Gdx.files.internal("StartButton.png"));
+        quitButtonTexture = new Texture(Gdx.files.internal("QuitButton.png"));
 
+        muteButtonTexture = new Texture(Gdx.files.internal("VolumeButton.png"));
+
+        if (Gdx.graphics.isFullscreen()){
+            fullButtonTexture = new Texture(Gdx.files.internal("MinimiseButton.png"));
+        }
+        else{
+            fullButtonTexture = new Texture(Gdx.files.internal("FullScreenButton.png"));
+        }
+
+        muted = false;
 
         updateButtonBounds();
     }
@@ -95,12 +109,15 @@ public class MainMenuScreen implements Screen {
 
 
 
+        menuBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         menuBatch.draw(playButtonTexture, playButtonBounds.x, playButtonBounds.y, playButtonBounds.width, playButtonBounds.height);
         menuBatch.draw(quitButtonTexture, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);
 
         menuBatch.draw(muteButtonTexture, muteButtonBounds.x, muteButtonBounds.y, muteButtonBounds.width, muteButtonBounds.height);
         menuBatch.draw(fullButtonTexture, fullButtonBounds.x, fullButtonBounds.y, fullButtonBounds.width, fullButtonBounds.height);
+
+        menuBatch.draw(title, (float)(Gdx.graphics.getWidth() - title.getWidth())/2, (float) (Gdx.graphics.getHeight()*0.8), title.getWidth(), title.getHeight());
 
         menuBatch.end();
 
@@ -122,7 +139,14 @@ public class MainMenuScreen implements Screen {
             } else if (quitButtonBounds.contains(touchX, touchY)) {
                 Gdx.app.exit();
             } else if (muteButtonBounds.contains(touchX, touchY)) {
-                System.out.println("Mute");
+                muted = !muted;
+
+                if (muted){
+                    muteButtonTexture = new Texture(Gdx.files.internal("Muted.png"));
+                }
+                else{
+                    muteButtonTexture = new Texture(Gdx.files.internal("VolumeButton.png"));
+                }
             } else if (fullButtonBounds.contains(touchX, touchY)) {
                 if (!Gdx.graphics.isFullscreen()) {
                     Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
