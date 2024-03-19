@@ -523,7 +523,6 @@ public class MainGameScreen implements Screen {
 
         // If the activity has recently been done, the popup will keep drawing the green (pressed) popup.
         if (time - timeLastInteraction <= 1 && timeLastInteraction != 0) {
-            //System.out.println(timeLastInteraction);
             game.batch.draw(popups[activity.getPopupIndex()][1],popupXLocation,popupYLocation);
             return;
         }
