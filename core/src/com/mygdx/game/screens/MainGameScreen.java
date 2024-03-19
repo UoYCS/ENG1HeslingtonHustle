@@ -115,6 +115,12 @@ public class MainGameScreen implements Screen {
 
     TextureRegion[][] popups;
 
+
+    final float originalViewportWidth = 800;
+    final float originalViewportHeight = 480;
+
+
+
     // Initialise an ArrayList to store details about the activities players can interact with
     private final List<Activity> activities = new ArrayList<>();
 
@@ -185,10 +191,10 @@ public class MainGameScreen implements Screen {
         eatPopupIndex = 3;
 
         // Create Activity instances and add them to the activities ArrayList
-        activities.add(new Activity("study", 315, 535, -10, 20, studyMarker, studyPopupIndex));
+        activities.add(new Activity("study", 315, 535, -40, 150, studyMarker, studyPopupIndex));
         activities.add(new Activity("sleep", 1375, 550, 0, 0, sleepMarker, sleepPopupIndex));
-        activities.add(new Activity("rec", 700, 360, -20, 20, recreationMarker, recPopupIndex));
-        activities.add(new Activity("eat", 1340, 150, 10, 20, eatMarker, eatPopupIndex));
+        activities.add(new Activity("rec", 700, 360, -30, 60, recreationMarker, recPopupIndex));
+        activities.add(new Activity("eat", 1340, 150, 10, 30, eatMarker, eatPopupIndex));
 
 
         
@@ -584,7 +590,9 @@ public class MainGameScreen implements Screen {
      */
     @Override
     public void resize(int width, int height) {
-
+        camera.viewportWidth = originalViewportWidth;
+        camera.viewportHeight= originalViewportHeight;
+        camera.update();
     }
 
     /**
