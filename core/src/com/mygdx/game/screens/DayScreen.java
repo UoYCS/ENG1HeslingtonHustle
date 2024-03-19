@@ -90,7 +90,12 @@ public class DayScreen implements Screen {
             // If there are days left of the game, set the MainGameScreen as the active screen.
             if (this.day != 7) {
                 ((MainGameScreen) MainGameScreen).startGameTimer(0);
-                ((MainGameScreen) MainGameScreen).setPlayerPosition(1360, 620);
+
+                // Set player position to game spawn point
+                ((MainGameScreen) MainGameScreen).setPlayerPosition(
+                        (int) ((MainGameScreen) MainGameScreen).SPAWN_POINT_X,
+                        (int) ((MainGameScreen) MainGameScreen).SPAWN_POINT_Y);
+
                 ((Game) Gdx.app.getApplicationListener()).setScreen(this.MainGameScreen);
             }
             // If there are no days left, create a new EndGameScreen and set it as active.

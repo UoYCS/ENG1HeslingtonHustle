@@ -102,7 +102,7 @@ public class EndGameScreen implements Screen {
 
         GlyphLayout finalScore = new GlyphLayout();
         GlyphLayout passFail = new GlyphLayout();
-        finalScore.setText(font, "Final Score: "+score);
+        finalScore.setText(font, "Final Score: " + score);
 
         if (score < 100){ //value for passing to be changed later
             passFail.setText(font, "Fail");
