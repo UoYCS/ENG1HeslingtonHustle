@@ -3,9 +3,16 @@ package com.mygdx.game;
 
 // Importing required libraries and classes from libgdx
 import com.badlogic.gdx.Game;
+<<<<<<< Updated upstream
+=======
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+>>>>>>> Stashed changes
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.screens.MainMenuScreen;
+''
 
 
 /**
@@ -20,6 +27,8 @@ public class HesHustle extends Game {
 
 	public OrthographicCamera camera;
 
+	public Music backgroundMusic;
+
 
 	/**
 	 * create() function is called when application is first created.
@@ -31,6 +40,13 @@ public class HesHustle extends Game {
 		batch = new SpriteBatch();
 		this.setScreen(new MainMenuScreen(this, null));
 		//this.setScreen(new MainGameScreen(this));
+
+		// set background music
+		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/bg_music.wav"));
+
+		// set background music to loop and play
+		backgroundMusic.setLooping(true);
+		backgroundMusic.play();
 	}
 
 
@@ -43,5 +59,3 @@ public class HesHustle extends Game {
 	public void render () {
 		super.render();
 	}
-
-}
