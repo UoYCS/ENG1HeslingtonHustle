@@ -114,16 +114,14 @@ public class MainGameScreen implements Screen {
 
     HesHustle game;
 
-<<<<<<< Updated upstream
     TextureRegion[][] popups;
-=======
+
     // Sound effects
     Sound eating_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/eating.mp3"));
     Sound rec_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/ducks.mp3"));
     Sound study_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/studying.mp3"));
     Sound low_energy_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/no_energy.mp3"));
 
->>>>>>> Stashed changes
 
     // Initialise an ArrayList to store details about the activities players can interact with
     private final List<Activity> activities = new ArrayList<>();
@@ -422,98 +420,7 @@ public class MainGameScreen implements Screen {
                 GAME_WORLD_HEIGHT - camera.viewportHeight / 2);
     }
 
-<<<<<<< Updated upstream
     private void drawEnergyBar(){
-=======
-
-        // Allow for user interaction with activities.
-        // When Interact button is pressed, check if the player is close to an activity, and process logic accordingly.
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            for (Activity activity : activities) {
-                if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
-
-                    if (Objects.equals(activity.getType(), "sleep")) {
-
-                        Sound sleep_sound = Gdx.audio.newSound(Gdx.files.internal("sleeping.mp3"));
-                        sleep_sound.play(1.0f);
-
-                        System.out.println("Day completed:" + day);
-                        System.out.println(Arrays.toString(studyCounter));
-                        System.out.println(Arrays.toString(eatCounter[day]));
-                        System.out.println(Arrays.toString(recCounter));
-
-
-
-                        day += 1;
-                        energy = 100;
-                        time = 0;
-                        mealsEaten = 0;
-
-                        ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
-                    }
-
-                    else if (Objects.equals(activity.getType(), "eat")) {
-                        if (mealsEaten == 3){
-                            System.out.println("Already eaten 3 times today");
-                        }
-                        else {
-                            eating_sound.play(1.0f);
-                            eatCounter[day][mealsEaten] = time;
-                            mealsEaten++;
-                            this.energy += (int) activity.getEnergyUsage();
-                            this.time += (int) activity.getTimeUsage();
-                        }
-                    }
-
-                    else if (this.energy + activity.getEnergyUsage() >= 0) {
-                        this.energy += (int) activity.getEnergyUsage();
-                        this.time += (int) activity.getTimeUsage();
-
-                        if (Objects.equals(activity.getType(), "study")) {
-                            study_sound.play(1.0f);
-                            studyCounter[day]++;
-                        }
-
-                        if (Objects.equals(activity.getType(), "rec")) {
-                            rec_sound.play(1.0f);
-                            recCounter[day]++;
-                        }
-
-                    } else {
-                        low_energy_sound.play(1.0f);
-                        System.out.println("Not enough energy to perform activity");
-                        }
-
-                    if (this.energy >= 100) {
-                        this.energy = 100;
-                    }
-
-                }
-            }
-        }
-
-
-
-
-
-
-        // Clear Screen and begin rendering
-        ScreenUtils.clear(255, 255, 255, 1);
-        game.batch.begin();
-        map.draw(game.batch);
-
-        // For each activity, draw it on the map with its corresponding marker
-        for (Activity activity : activities) {
-            game.batch.draw(activity.getMarker(), activity.getX_location() - ((float) activity.getMarker().getRegionWidth() /2), activity.getY_location() - ((float) activity.getMarker().getRegionHeight() /2));
-        }
-
-
-
-        // Update the position of the game camera using previous logic
-        game.camera.position.set(camera_x, camera_y, 0);
-        game.camera.update();
-        game.batch.setProjectionMatrix(game.camera.combined);
->>>>>>> Stashed changes
 
         // Set colour of energy bar based on energy level
         // If health above 66, green, if above 33, yellow, if below 33, red
@@ -586,6 +493,10 @@ public class MainGameScreen implements Screen {
         for (Activity activity : activities) {
             if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
                 if (Objects.equals(activity.getType(), "sleep")) {
+
+                    Sound sleep_sound = Gdx.audio.newSound(Gdx.files.internal("sleeping.mp3"));
+                    sleep_sound.play(1.0f);
+
                     drawInteractionPopup(activity, 1);
                     newDay();
                 }
@@ -595,6 +506,7 @@ public class MainGameScreen implements Screen {
                         System.out.println("Already eaten 3 times today");
                     }
                     else {
+                        eating_sound.play(1.0f);
                         eatCounter[day][mealsEaten] = time;
                         mealsEaten++;
                         this.energy += (int) activity.getEnergyUsage();
@@ -608,15 +520,18 @@ public class MainGameScreen implements Screen {
                     this.time += (int) activity.getTimeUsage();
                     drawInteractionPopup(activity, 1);
                     if (Objects.equals(activity.getType(), "study")) {
+                        study_sound.play(1.0f);
+
                         studyCounter[day]++;
                     }
 
                     if (Objects.equals(activity.getType(), "rec")) {
+                        rec_sound.play(1.0f);
                         recCounter[day]++;
                     }
 
                 } else {
-                    System.out.println("Not enough energy to perform activity");
+                    low_energy_sound.play(1.0f);
                 }
 
                 if (this.energy >= 100) {
@@ -625,6 +540,7 @@ public class MainGameScreen implements Screen {
 
             }
         }
+
     }
 
 
@@ -726,16 +642,13 @@ public class MainGameScreen implements Screen {
     public void dispose() {
         player_texture.dispose();
         spriteSheet.dispose();
-<<<<<<< Updated upstream
         map.dispose();
         mapRenderer.dispose();
         //stopGameTimer();
-=======
         eating_sound.dispose();
         study_sound.dispose();
         low_energy_sound.dispose();
         rec_sound.dispose();
->>>>>>> Stashed changes
     }
 
 }

@@ -3,16 +3,13 @@ package com.mygdx.game;
 
 // Importing required libraries and classes from libgdx
 import com.badlogic.gdx.Game;
-<<<<<<< Updated upstream
-=======
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
->>>>>>> Stashed changes
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.screens.MainMenuScreen;
-''
 
 
 /**
@@ -36,7 +33,7 @@ public class HesHustle extends Game {
 	 * ...
 	 */
 	@Override
-	public void create () {
+	public void create() {
 		batch = new SpriteBatch();
 		this.setScreen(new MainMenuScreen(this, null));
 		//this.setScreen(new MainGameScreen(this));
@@ -50,12 +47,13 @@ public class HesHustle extends Game {
 	}
 
 
-
 	/**
 	 * render() is called every frame to render the game.
 	 * Rendering a frame is delegated to the current active screen.
 	 */
 	@Override
-	public void render () {
+	public void render() {
 		super.render();
 	}
+
+}
