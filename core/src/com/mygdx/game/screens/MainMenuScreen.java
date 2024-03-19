@@ -1,5 +1,6 @@
 package com.mygdx.game.screens;
 
+// Importing required libraries and classes
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -122,9 +123,6 @@ public class MainMenuScreen implements Screen {
         menuBatch.end();
 
         if (Gdx.input.justTouched()) {
-
-            System.out.println(this.gameScreen);
-
             float touchX = Gdx.input.getX();
             float touchY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Invert Y-coordinate
             if (playButtonBounds.contains(touchX, touchY)) {

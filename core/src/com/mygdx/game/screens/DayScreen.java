@@ -1,5 +1,6 @@
 package com.mygdx.game.screens;
 
+// Importing required libraries and classes
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -94,7 +95,7 @@ public class DayScreen implements Screen {
             }
             // If there are no days left, create a new EndGameScreen and set it as active.
             else {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(this.game, this.MainGameScreen, studyCounter, recCounter, eatCounter));
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new EndGameScreen(this.game, studyCounter, recCounter, eatCounter));
 
             }
         }
@@ -102,7 +103,7 @@ public class DayScreen implements Screen {
         // Begin Rendering frame
         dayBatch.begin();
 
-        // Get the Width and Height of the screen in order to use for centering text.
+        // Get the Width and Height of the screen to use for centering text
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
 
