@@ -155,7 +155,7 @@ public class EndGameScreen implements Screen {
 
         ScreenUtils.clear(0, 0, 0, 1);
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(this.game));
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(this.game, null));
         }
 
         // Calculate the position to center the text
