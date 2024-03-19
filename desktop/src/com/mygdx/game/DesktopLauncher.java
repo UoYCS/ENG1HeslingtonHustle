@@ -2,19 +2,25 @@
 package com.mygdx.game;
 
 // Importing required libraries and classes
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.mygdx.game.HesHustle;
 
-// Pleasenote that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
+// Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 
 /**
  * Main class to handle how the game is launched.
- *
- * ...
+ * This class is responsible for configuring and launching the game.
  */
 public class DesktopLauncher {
 
+
+	/**
+	 * Main method used to launch the game windowed
+	 * @param arg Command-line arguments (Not used)
+	 */
 	public static void main (String[] arg) {
 
 		// Creating configuration settings for the Lwjgl3 application.
@@ -26,11 +32,11 @@ public class DesktopLauncher {
 		// Set the games windowed mode dimensions (width, height)
 		config.setWindowedMode(1024, 576);
 
-		// Set the title of the application window
-		config.setTitle("ENGHeslingtonHustle");
-
 		// Disable use of resizable window
 		config.setResizable(false);
+
+		// Set the title of the application window
+		config.setTitle("ENG1 Heslington Hustle");
 
 		// Create the Lwjgl3Application instance using the defined config settings and HesHustle game class
 		new Lwjgl3Application(new HesHustle(), config);
