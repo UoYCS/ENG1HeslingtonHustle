@@ -5,6 +5,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -126,6 +128,16 @@ public class MainGameScreen implements Screen {
 
     // HesHustle game instance
     HesHustle game;
+
+    // Initialise sound effect variables
+    Sound eating_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/eating.mp3"));
+    Sound rec_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/ducks.mp3"));
+    Sound low_energy_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/no_energy.mp3"));
+    Sound low_energy_sound_long = Gdx.audio.newSound(Gdx.files.internal("sfx/no_energy_long.mp3"));
+    Music sleep_sound = Gdx.audio.newMusic(Gdx.files.internal("sfx/sleeping_fade_out.mp3"));
+    Music study_sound = Gdx.audio.newMusic(Gdx.files.internal("sfx/studying.mp3"));
+  
+    boolean bgMuted = false;
 
 
 
@@ -301,13 +313,20 @@ public class MainGameScreen implements Screen {
         // Draw game HUD
         drawEnergyBar();
         drawTimeSign();
+      
 
+        // If the background is currently muted or the game is muted
+        // set the bg music volume to 0
+        if (bgMuted || this.game.gameMuted){
+            this.game.backgroundMusic.setVolume(0);
+        } else{
+            this.game.backgroundMusic.setVolume(0.5f);
+        }
 
 
         // End rendering for the frame
         game.batch.end();
     }
-
 
     /**
      * Set the player position.
@@ -423,6 +442,18 @@ public class MainGameScreen implements Screen {
      * then displays the day summary screen
      */
     private void newDay(){
+        
+        if (!this.game.gameMuted){
+            bgMuted = true;
+            sleep_sound.play();
+            sleep_sound.setOnCompletionListener(new Music.OnCompletionListener() {
+                @Override
+                public void onCompletion(Music music) {
+                    bgMuted = false;
+                }
+            });
+        }
+      
         stopGameTimer();
         day += 1;
         energy = 100;
@@ -431,7 +462,7 @@ public class MainGameScreen implements Screen {
         timeLastInteraction = 0;
         ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
     }
-
+  
 
     /**
      * Draws the energy bar onto the game
@@ -439,15 +470,23 @@ public class MainGameScreen implements Screen {
     private void drawEnergyBar(){
 
         // Set colour of energy bar based on energy level
+      
+        // If energy above 60, green
+        // If above 20, yellow
+        // If below 20, red, and play low energy sound
+      
         String colour;
         if (this.energy > 60){
             colour = "green";
         }
-        else if (this.energy > 15){
+        else if (this.energy > 20){
             colour = "yellow";
         }
         else {
             colour = "red";
+            if(!this.game.gameMuted){
+                low_energy_sound_long.play(0.05f);
+            }
         }
 
         // Set the position of the bar to the bottom left of the screen (plus an offset)
@@ -575,6 +614,11 @@ public class MainGameScreen implements Screen {
                  */
                 else if (Objects.equals(activity.getType(), "eat")) {
                     if (mealsEaten != 3){
+                     
+                        if(!this.game.gameMuted){
+                            eating_sound.play(1.0f);
+                        }
+                      
                         eatCounter[day][mealsEaten] = time;
                         mealsEaten++;
                         this.energy += (int) activity.getEnergyUsage();
@@ -593,13 +637,32 @@ public class MainGameScreen implements Screen {
                     this.time += (int) activity.getTimeUsage();
                     drawInteractionPopup(activity, 1);
                     if (Objects.equals(activity.getType(), "study")) {
+
+                        if(!this.game.gameMuted){
+                            bgMuted = true;
+                            study_sound.play();
+                            study_sound.setOnCompletionListener(new Music.OnCompletionListener() {
+                                @Override
+                                public void onCompletion(Music music) {
+                                    bgMuted = false;
+                                }
+                            });
+                        }
+
+
+
                         studyCounter[day]++;
                     }
 
                     if (Objects.equals(activity.getType(), "rec")) {
+                        if(!this.game.gameMuted){
+                            rec_sound.play(1.0f);
+                        }
                         recCounter[day]++;
                     }
 
+                } else {
+                    low_energy_sound.play(1.0f);
                 }
 
                 // Make sure the users energy can't go above 100 from eating
@@ -609,7 +672,9 @@ public class MainGameScreen implements Screen {
 
             }
         }
+
     }
+
 
 
     /**
@@ -703,6 +768,10 @@ public class MainGameScreen implements Screen {
         spriteSheet.dispose();
         map.dispose();
         mapRenderer.dispose();
+        eating_sound.dispose();
+        study_sound.dispose();
+        low_energy_sound.dispose();
+        rec_sound.dispose();
     }
 }
 

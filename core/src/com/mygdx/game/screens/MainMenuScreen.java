@@ -131,8 +131,15 @@ public class MainMenuScreen implements Screen {
         else{
             menuBatch.draw(playButtonTexture, playButtonBounds.x, playButtonBounds.y, playButtonBounds.width, playButtonBounds.height);
         }
-
         menuBatch.draw(quitButtonTexture, quitButtonBounds.x, quitButtonBounds.y, quitButtonBounds.width, quitButtonBounds.height);
+
+        if (this.game.gameMuted){
+            muteButtonTexture = new Texture(Gdx.files.internal("Muted.png"));
+        }else{
+            muteButtonTexture = new Texture(Gdx.files.internal("VolumeButton.png"));
+        }
+
+
         menuBatch.draw(muteButtonTexture, muteButtonBounds.x, muteButtonBounds.y, muteButtonBounds.width, muteButtonBounds.height);
         menuBatch.draw(fullButtonTexture, fullButtonBounds.x, fullButtonBounds.y, fullButtonBounds.width, fullButtonBounds.height);
         menuBatch.draw(title, (float)(Gdx.graphics.getWidth() - title.getWidth())/2, (float) (Gdx.graphics.getHeight()*0.8), title.getWidth(), title.getHeight());
@@ -170,14 +177,13 @@ public class MainMenuScreen implements Screen {
                 Gdx.app.exit();
 
             } else if (muteButtonBounds.contains(touchX, touchY)) {
-                // If mute button pressed, mute/unmute the game and change the button texture
+                // If mute button pressed, mute/unmute the game
+                this.game.gameMuted = !this.game.gameMuted;
 
-                muted = !muted;
-                if (muted){
-                    muteButtonTexture = new Texture(Gdx.files.internal("Muted.png"));
-                }
-                else{
-                    muteButtonTexture = new Texture(Gdx.files.internal("VolumeButton.png"));
+                if (this.game.gameMuted){
+                    this.game.backgroundMusic.setVolume(0);
+                } else{
+                    this.game.backgroundMusic.setVolume(0.5f);
                 }
 
             } else if (fullButtonBounds.contains(touchX, touchY)) {
