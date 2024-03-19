@@ -121,6 +121,7 @@ public class MainGameScreen implements Screen {
     Sound rec_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/ducks.mp3"));
     Sound study_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/studying.mp3"));
     Sound low_energy_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/no_energy.mp3"));
+    Sound sleep_sound = Gdx.audio.newSound(Gdx.files.internal("sfx/sleeping.mp3"));
 
 
     // Initialise an ArrayList to store details about the activities players can interact with
@@ -494,7 +495,6 @@ public class MainGameScreen implements Screen {
             if (activity.isPlayerClose(player_x + ((float) player_texture.getWidth() /2), player_y + ((float) player_texture.getHeight() /2))){
                 if (Objects.equals(activity.getType(), "sleep")) {
 
-                    Sound sleep_sound = Gdx.audio.newSound(Gdx.files.internal("sleeping.mp3"));
                     sleep_sound.play(1.0f);
 
                     drawInteractionPopup(activity, 1);
