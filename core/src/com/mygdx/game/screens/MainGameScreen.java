@@ -355,7 +355,7 @@ public class MainGameScreen implements Screen {
         // Checking if player is moving diagonally and if so to normalise speed
 
         // This is important as without normalisation,
-        // the player would be faster when moving diagonally due to Pytha   gorean theorem
+        // the player would be faster when moving diagonally due to Pythagorean theorem
 
         if (horizontal != 0 && vertical != 0) {
             float length = (float) Math.sqrt(Math.pow(horizontal, 2) + Math.pow(vertical, 2));
