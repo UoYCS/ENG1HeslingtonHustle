@@ -33,7 +33,8 @@ import java.util.*;
 public class MainGameScreen implements Screen {
 
     // Constant for player movement speed
-    public static float SPEED = 150;
+    public static int DEFAULT_SPEED = 150;
+    public static float SPEED = DEFAULT_SPEED;
 
     // Game assets
     Texture player_texture;    // Player Texture
@@ -89,12 +90,12 @@ public class MainGameScreen implements Screen {
 
     // Minutes from 8am
     // Max Value = 960 @ 12am.
-    int time = 0;
+    int time;
     final int MAX_TIME = 960;
 
     private Timer timer;
     private int timeInterval = 1000;
-
+    public boolean gameTimerStarted = false;
     int day = 0;
     final int gameDaysLength = 7;
 
@@ -198,7 +199,10 @@ public class MainGameScreen implements Screen {
     @Override
     public void show() {
         player_texture = new Texture("Character.png");
-        startGameTimer();
+        //if (!gameTimerStarted) {
+            startGameTimer(time);
+        //    gameTimerStarted = true;
+        //}
 
     }
 
@@ -293,6 +297,11 @@ public class MainGameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             handleActivityInteraction();}
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
+            stopGameTimer();
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(this.game, this));
+
+        }
 
         game.batch.end();
 
@@ -306,7 +315,7 @@ public class MainGameScreen implements Screen {
         float popupYLocation = activity.getY_location() + ((float) activity.getMarker().getRegionHeight() / 3);
 
 
-        if (time - timeLastInteraction <= 3 && timeLastInteraction != 0) {
+        if (time - timeLastInteraction <= 1 && timeLastInteraction != 0) {
             //System.out.println(timeLastInteraction);
             game.batch.draw(popups[activity.getPopupIndex()][1],popupXLocation,popupYLocation);
             return;
@@ -341,7 +350,9 @@ public class MainGameScreen implements Screen {
     private void handleMovement(int horizontal, int vertical) {
 
         if (energy <= 10){
-            SPEED = 75;
+            SPEED = (float) DEFAULT_SPEED / 2;
+        } else {
+            SPEED = DEFAULT_SPEED;
         }
 
         // Checking if player is moving diagonally and if so to normalise speed
@@ -448,6 +459,7 @@ public class MainGameScreen implements Screen {
         energy = 100;
         time = 0;
         mealsEaten = 0;
+        timeLastInteraction = 0;
         ((Game) Gdx.app.getApplicationListener()).setScreen(new DayScreen(this.game, this, day, studyCounter, recCounter, eatCounter));
     }
 
@@ -471,10 +483,10 @@ public class MainGameScreen implements Screen {
     return false;
     }
 
-    public void startGameTimer() {
+    public void startGameTimer(int timerTime) {
         stopGameTimer();
         timer = new Timer();
-        time = 0;
+        time = timerTime;
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -540,7 +552,7 @@ public class MainGameScreen implements Screen {
         spriteSheet.dispose();
         map.dispose();
         mapRenderer.dispose();
-        stopGameTimer();
+        //stopGameTimer();
     }
 
 }

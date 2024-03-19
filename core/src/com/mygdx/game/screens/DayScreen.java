@@ -57,7 +57,7 @@ public class DayScreen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1);
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             if (this.day != 7) {
-                ((MainGameScreen) MainGameScreen).startGameTimer();
+                ((MainGameScreen) MainGameScreen).startGameTimer(0);
                 ((MainGameScreen) MainGameScreen).setPlayerPosition(1360, 620);
                 ((Game) Gdx.app.getApplicationListener()).setScreen(this.MainGameScreen);
             }

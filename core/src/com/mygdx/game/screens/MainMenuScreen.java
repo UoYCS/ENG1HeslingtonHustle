@@ -12,7 +12,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.HesHustle;
+import com.mygdx.game.screens.MainGameScreen;
 import com.badlogic.gdx.math.Rectangle;
+import jdk.tools.jmod.Main;
 
 public class MainMenuScreen implements Screen {
 
@@ -32,9 +34,13 @@ public class MainMenuScreen implements Screen {
 
     HesHustle game;
 
-    public MainMenuScreen(HesHustle game) {
+    MainGameScreen gameScreen = null;
+
+    public MainMenuScreen(HesHustle game, MainGameScreen gameScreen) {
 
         this.game = game;
+        this.gameScreen = gameScreen;
+
 
         menuBatch = new SpriteBatch();
         font = new BitmapFont();
@@ -104,10 +110,22 @@ public class MainMenuScreen implements Screen {
         menuBatch.end();
 
         if (Gdx.input.justTouched()) {
+
+            System.out.println(this.gameScreen);
+
             float touchX = Gdx.input.getX();
             float touchY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Invert Y-coordinate
             if (playButtonBounds.contains(touchX, touchY)) {
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new MainGameScreen(this.game));
+
+                if (this.gameScreen != null){
+                    System.out.println("testing");
+                    ((Game) Gdx.app.getApplicationListener()).setScreen(this.gameScreen);
+
+                }else {
+                    System.out.println("testing2");
+                    ((Game) Gdx.app.getApplicationListener()).setScreen(new MainGameScreen(this.game));
+                }
+
             } else if (quitButtonBounds.contains(touchX, touchY)) {
                 Gdx.app.exit();
             } else if (muteButtonBounds.contains(touchX, touchY)) {
@@ -115,10 +133,10 @@ public class MainMenuScreen implements Screen {
             } else if (fullButtonBounds.contains(touchX, touchY)) {
                 if (!Gdx.graphics.isFullscreen()) {
                     Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-                    ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(this.game));
+                    ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(this.game, this.gameScreen));
                 } else {
                     Gdx.graphics.setWindowedMode(1024, 576); // Set your preferred window size
-                    ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(this.game));
+                    ((Game) Gdx.app.getApplicationListener()).setScreen(new MainMenuScreen(this.game, this.gameScreen));
                 }
                 updateButtonBounds();
 
