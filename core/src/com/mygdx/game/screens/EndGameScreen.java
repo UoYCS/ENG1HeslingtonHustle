@@ -103,7 +103,6 @@ public class EndGameScreen implements Screen {
 
         for (int i = 0; i < totalDays; i++) {
             int mealsEaten = (int) Arrays.stream(eatCounter[i]).filter(num -> num != 0).count();
-            System.out.println(mealsEaten);
 
             switch (mealsEaten){
                 case 0:
