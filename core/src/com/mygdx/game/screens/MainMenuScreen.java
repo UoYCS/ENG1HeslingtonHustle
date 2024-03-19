@@ -113,11 +113,9 @@ public class MainMenuScreen implements Screen {
             if (playButtonBounds.contains(touchX, touchY)) {
 
                 if (this.gameScreen != null){
-                    System.out.println("testing");
                     ((Game) Gdx.app.getApplicationListener()).setScreen(this.gameScreen);
 
                 }else {
-                    System.out.println("testing2");
                     ((Game) Gdx.app.getApplicationListener()).setScreen(new MainGameScreen(this.game));
                 }
 
