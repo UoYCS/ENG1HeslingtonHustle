@@ -38,6 +38,9 @@ public class DesktopLauncher {
 		// Set the title of the application window
 		config.setTitle("ENG1 Heslington Hustle");
 
+		// Set game window Icon
+		config.setWindowIcon("LogoSmall.png");
+
 		// Create the Lwjgl3Application instance using the defined config settings and HesHustle game class
 		new Lwjgl3Application(new HesHustle(), config);
 	}
