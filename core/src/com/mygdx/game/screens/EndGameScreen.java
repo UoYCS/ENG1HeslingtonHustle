@@ -121,7 +121,7 @@ public class EndGameScreen implements Screen {
 
         finalScore.setText(font, "Final Score: " + percentScore+" / 100");
 
-        if (score < 40){
+        if (percentScore < 40){
             passFail.setText(font, "Fail");
         }
         else{
