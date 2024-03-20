@@ -41,6 +41,7 @@ public class EndGameScreen implements Screen {
     private int studyCount;
     private int daysStudied;
     private int recCount;
+    private int maxPoints;
 
 
     /**
@@ -106,9 +107,12 @@ public class EndGameScreen implements Screen {
 
         GlyphLayout finalScore = new GlyphLayout();
         GlyphLayout passFail = new GlyphLayout();
-        finalScore.setText(font, "Final Score: " + score);
 
-        if (score < 100){ //value for passing to be changed later
+        int percentScore = (int)(((double)score / maxPoints) * 100);
+
+        finalScore.setText(font, "Final Score: " + percentScore+" /100");
+
+        if (score < 40){
             passFail.setText(font, "Fail");
         }
         else{
@@ -158,6 +162,10 @@ public class EndGameScreen implements Screen {
          * Score increases up to studying 10 times a week
          * Studying more than this will remove points from the player
          * There is a bonus for studying each day
+         *
+         * Maximum points:
+         * - Studying (up to 10 times) = 10*10 = 100pts
+         * - Bonus for studying every day (or 6 days + catchup) = 40 pts
          */
 
         // Number of times studied
@@ -168,23 +176,21 @@ public class EndGameScreen implements Screen {
 
         // Add points for number of times studied in the week
         if (studyCount <= 10){
-            score += studyCount * 50;
+            score += studyCount * 10;
         } else {
-            score += 10 * 50;
+            score += 10 * 10;
             // Penalise over-studying
-            score -= (studyCount-10) * 25;
+            score -= (studyCount-10) * 5;
         }
 
         // Bonus for working everyday
         if (daysStudied == 7){
-            score += 100;
+            score += 40;
         } else if (daysStudied == 6) {
             if (studyCount > 6){
                 // Checking if the player missed a day but caught up
-                score += 25;
+                score += 40;
             }
-        } else {
-            score -= 100;
         }
 
 
@@ -193,6 +199,10 @@ public class EndGameScreen implements Screen {
          * Eating gives the player points
          * More points are awarded if they eat 3 times a day
          * Bonus for eating 3 reasonably spaced meals a day
+         *
+         * Maximum points:
+         * - Eating (3 times a day, reasonably spaced) = (3*5) + 5(bonus) = 20
+         *      - *7 for the week = 30*7 = 140
          */
 
         int totalDays = eatCounter.length;
@@ -205,28 +215,27 @@ public class EndGameScreen implements Screen {
             switch (mealsEaten){
                 // If the player didn't eat, penalise them
                 case 0:
-                    score -= 25;
                     break;
 
                 // If the player only ate once, reward a small amount of points
                 case 1:
-                    score += 10;
+                    score += 5;
                     timesEaten++;
                     break;
 
                 // If the player only ate twice, add more points
                 case 2:
-                    score += 20;
+                    score += 10;
                     timesEaten += 2;
                     break;
                 case 3:
                     // If the player ate 3 times, reward them more points
-                    score += 40;
+                    score += 15;
                     timesEaten += 3;
 
                     // Check if the player ate at reasonable intervals
                     if ((eatCounter[i][1] - eatCounter[i][0] > 240) && (eatCounter[i][2] - eatCounter[i][1] > 240)){
-                        score += 50;
+                        score += 5;
                     }
                     break;
             }
@@ -242,13 +251,27 @@ public class EndGameScreen implements Screen {
         /*
          * Feeding the ducks gives the player points.
          * Points are rewarded every time it is done but only up to 7 times
+         *
+         * Maximum points:
+         * - Feeding ducks (up to 7 times) = 7*10 = 70 pts
          */
 
         // Number of times recreational activity was done
         recCount = Arrays.stream(recCounter).sum();
 
         // Points for doing recreational activities, only up to 7 times
-        score += Math.min(recCount, 7) * 25;
+        score += Math.min(recCount, 7) * 8;
+
+
+
+        /*
+         * Total Maximum points in a week =
+         *  - Studying : 140
+         *  - Eating : 140
+         *  - Recreation : 70
+         */
+
+        this.maxPoints = 140 + 140 + 70;
 
     }
 
