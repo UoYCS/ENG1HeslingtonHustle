@@ -183,7 +183,7 @@ public class MainMenuScreen implements Screen {
                 if (this.game.gameMuted){
                     this.game.backgroundMusic.setVolume(0);
                 } else{
-                    this.game.backgroundMusic.setVolume(0.5f);
+                    this.game.backgroundMusic.setVolume(this.game.defaultVolume);
                 }
 
             } else if (fullButtonBounds.contains(touchX, touchY)) {

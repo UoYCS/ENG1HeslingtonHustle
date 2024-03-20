@@ -28,6 +28,7 @@ public class HesHustle extends Game {
 	public Music backgroundMusic;
 
 	public boolean gameMuted;
+	public float defaultVolume = 0.5f;
 
 	/**
 	 * Called when the application is created.
@@ -43,7 +44,7 @@ public class HesHustle extends Game {
 
 		// set background music to loop and play
 		backgroundMusic.setLooping(true);
-		backgroundMusic.setVolume(0.5f);
+		backgroundMusic.setVolume(defaultVolume);
 		backgroundMusic.play();
 	}
 

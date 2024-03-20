@@ -320,7 +320,7 @@ public class MainGameScreen implements Screen {
         if (bgMuted || this.game.gameMuted){
             this.game.backgroundMusic.setVolume(0);
         } else{
-            this.game.backgroundMusic.setVolume(0.5f);
+            this.game.backgroundMusic.setVolume(this.game.defaultVolume);
         }
 
 
@@ -388,7 +388,7 @@ public class MainGameScreen implements Screen {
             float x_movement = (horizontal * SPEED) * Gdx.graphics.getDeltaTime();
 
             // Only add movement to player if resulting tile is not blocked
-            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y-1 + y_movement))){
+            if (!tileBlocked((int) ((int) player_x + (player_texture.getWidth()/2) + x_movement), (int) ((int) player_y + y_movement))){
                 player_y += y_movement;
                 player_x += x_movement;
             }
@@ -446,12 +446,7 @@ public class MainGameScreen implements Screen {
         if (!this.game.gameMuted){
             bgMuted = true;
             sleep_sound.play();
-            sleep_sound.setOnCompletionListener(new Music.OnCompletionListener() {
-                @Override
-                public void onCompletion(Music music) {
-                    bgMuted = false;
-                }
-            });
+            sleep_sound.setOnCompletionListener(music -> bgMuted = false);
         }
       
         stopGameTimer();
@@ -484,9 +479,6 @@ public class MainGameScreen implements Screen {
         }
         else {
             colour = "red";
-            if(!this.game.gameMuted){
-                low_energy_sound_long.play(0.05f);
-            }
         }
 
         // Set the position of the bar to the bottom left of the screen (plus an offset)
@@ -641,12 +633,7 @@ public class MainGameScreen implements Screen {
                         if(!this.game.gameMuted){
                             bgMuted = true;
                             study_sound.play();
-                            study_sound.setOnCompletionListener(new Music.OnCompletionListener() {
-                                @Override
-                                public void onCompletion(Music music) {
-                                    bgMuted = false;
-                                }
-                            });
+                            study_sound.setOnCompletionListener(music -> bgMuted = false);
                         }
 
 
