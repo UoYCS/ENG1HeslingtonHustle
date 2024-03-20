@@ -28,7 +28,7 @@ public class EndGameScreen implements Screen {
     private Texture continueButton; // Continue button
 
     private int score = 0; // Players game score
-
+    private int percentScore;
     // Arrays to store counts each activity for each day
     private final int[] studyCounter;
     private final int[] recCounter;
@@ -108,9 +108,18 @@ public class EndGameScreen implements Screen {
         GlyphLayout finalScore = new GlyphLayout();
         GlyphLayout passFail = new GlyphLayout();
 
-        int percentScore = (int)(((double)score / maxPoints) * 100);
+        // Convert points into score from 0-100
+        percentScore = (int)(((double)score / maxPoints) * 100);
 
-        finalScore.setText(font, "Final Score: " + percentScore+" /100");
+        // Make sure new score is between 0 and 100
+        if (percentScore < 0){
+            percentScore = 0;
+        }
+        if (percentScore > 100){
+            percentScore = 100;
+        }
+
+        finalScore.setText(font, "Final Score: " + percentScore+" / 100");
 
         if (score < 40){
             passFail.setText(font, "Fail");
