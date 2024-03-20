@@ -58,11 +58,4 @@ public class HesHustle extends Game {
 		super.render();
 	}
 
-	public void muteGame(){
-		gameMuted = true;
-	}
-
-	public void unmuteGame(){
-		gameMuted = false;
-	}
 }
