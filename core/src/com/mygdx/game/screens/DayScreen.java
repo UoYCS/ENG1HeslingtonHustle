@@ -179,11 +179,10 @@ public class DayScreen implements Screen {
         rec.setText(font, "Recreational Activities:"+recCounter[day-1]);
 
         // Draw text summaries to screen
-        font.draw(dayBatch, summary_title, (screenWidth - summary_title.width) / 2, (float) (screenHeight * 0.5));
-        font.draw(dayBatch, study, (screenWidth - 750) / 2, (float) (screenHeight * 0.35));
-        font.draw(dayBatch, eaten, (screenWidth - 750) / 2, (float) (screenHeight * 0.25));
-        font.draw(dayBatch, rec, (screenWidth - 750) / 2, (float) (screenHeight * 0.15));
-
+        font.draw(dayBatch, summary_title, (screenWidth - 950) / 2, (float) (screenHeight * 0.5));
+        font.draw(dayBatch, study, (screenWidth - 950) / 2, (float) (screenHeight * 0.35));
+        font.draw(dayBatch, eaten, (screenWidth - 950) / 2, (float) (screenHeight * 0.25));
+        font.draw(dayBatch, rec, (screenWidth - 950) / 2, (float) (screenHeight * 0.15));
 
         //Drawing the continue button
         dayBatch.draw(continueButton, (float) ((Gdx.graphics.getWidth() - continueButton.getWidth())/1.25), (float) ((Gdx.graphics.getHeight() - continueButton.getHeight())/8),continueButton.getWidth()*2,continueButton.getHeight()*2);
