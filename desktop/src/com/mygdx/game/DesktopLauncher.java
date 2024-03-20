@@ -5,7 +5,6 @@ package com.mygdx.game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.mygdx.game.HesHustle;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
@@ -36,10 +35,10 @@ public class DesktopLauncher {
 		config.setResizable(false);
 
 		// Set the title of the application window
-		config.setTitle("ENG1 Heslington Hustle");
+		config.setTitle("Heslington Hustle - ENG1 Cohort 3 Team 22");
 
 		// Set game window Icon
-		config.setWindowIcon("LogoSmall.png");
+		config.setWindowIcon("Logo.png");
 
 		// Create the Lwjgl3Application instance using the defined config settings and HesHustle game class
 		new Lwjgl3Application(new HesHustle(), config);
